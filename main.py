@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
-
 from datetime import datetime
-
 import fdb
 
 # importamos a biblioteca os, que permite trabalhar com arquivos  e pastas do computador.
@@ -19,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Borella\Downloads\bolso-em-dia-main\BANCO.FDB"
+database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -505,6 +503,32 @@ def dashboard():
     finally:
         cursor.close()
 
+
+@app.route('/perfil', methods=['GET'])
+def perfil():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""",(id_usuario,))
+
+        usuario = cursor.fetchone()
+
+        return render_template('perfil.html', usuario=usuario)
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
+
 @app.route('/editar_usuario', methods=['GET','POST'])
 def editar_usuario():
 
@@ -628,9 +652,215 @@ def editar_usuario():
 
     except Exception as e:
         con.rollback()
-        print("ERRO AO EDITAR USUÁRIO:", repr(e))
         flash(f"Ocorreu um erro: {e}", "error")
         return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
+
+
+# SOMENTE CADASTRO DE CATEGORIA QUE ESTÁ FINALIZADO, O RESTANTE SERÁ NECESSÁRIO TIRAR DÚVIDAS (CONFERIR TBM A DASHBOARD)
+
+@app.route('/todas_categorias', method=['GET'])
+def todas_categorias():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT NOME_CATEGORIA, TIPO FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario, ))
+        categorias = cursor.fetchall()
+
+        return render_template("categorias.html", categorias=categorias)
+
+    except Exception as e:
+        con.rollback()
+        flash(f"Ocorreu um erro: {e}", "error")
+        return redirect(url_for('todas_categorias'))
+
+    finally:
+        cursor.close()
+
+
+@app.route('/editar_categoria', methods=['GET','POST'])
+def editar_categoria(id):
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND ID_CATEGORIA = ?""", (id_usuario, id))
+        categoria = cursor.fetchone()
+
+        if not cursor.fetchone():
+            flash('Categoria não encontrada!', 'error')
+            return redirect(url_for('todas_categorias'))
+
+        if categoria[4] == 0:
+            flash('Não é possível editar uma categoria inativada!', 'error')
+            return redirect(url_for('todas_categorias'))
+
+        if request.method == 'POST':
+            nome_categoria = request.form['nome_categoria'].strip()
+            tipo = int(request.form['tipo'])
+            cor = request.form['cor']
+            icone = request.form['icone']
+
+            cursor.execute("""SELECT 1 FROM CATEGORIA WHERE upper(NOME_CATEGORIA) = ?""", (nome_categoria.upper(), ))
+            if cursor.fetchone():
+                flash('Essa categoria já existe!', 'error')
+                return redirect(url_for('editar_categoria', id=id))
+
+            cursor.execute("""UPDATE CATEGORIA SET NOME_CATEGORIA = ?, TIPO = ?, COR = ?, ICONE = ?""", (nome_categoria, tipo, cor, icone))
+            con.commit()
+            flash('Categoria editado com sucesso!', 'success')
+            return redirect(url_for('todas_categorias'))
+
+        else:
+            return render_template("editar_categoria", categoria=categoria)
+
+    except Exception as e:
+        con.rollback()
+        flash(f"Ocorreu um erro: {e}", "error")
+        return redirect(url_for('todas_categorias'))
+
+    finally:
+        cursor.close()
+
+
+
+@app.route('/nova_categoria')
+def nova_categoria():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+    return render_template("nova_categoria.html")
+
+
+@app.route('/cadastrar_categoria', methods=['POST'])
+def cadastrar_categoria():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    nome_categoria = request.form['nome_categoria'].strip()
+    tipo = int(request.form['tipo'])
+    cor = request.form['cor']
+    icone = request.form['icone']
+
+    if not nome_categoria:
+        flash('O campo "Nome Categoria" não pode ser vazio!', 'error')
+        return redirect(url_for('cadastrar_categoria'))
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT 1 FROM CATEGORIA WHERE upper(NOME_CATEGORIA) = ? AND ID_USUARIO = ?""", (nome_categoria.upper(), id_usuario,))
+        cursor.fetchone()
+        if cursor.fetchone():
+            flash('Essa categoria já existe!', 'error')
+            return redirect(url_for('cadastrar_categoria'))
+
+        cursor.execute("""INSERT INTO CATEGORIA (NOME_CATEGORIA, TIPO, COR, ICONE, ID_USUARIO, STATUS) VALUES (?,?,?,?,?,1)""", (nome_categoria, tipo, cor, icone, id_usuario, ))
+
+        con.commit()
+        flash('Categoria cadastrado com sucesso!', 'success')
+        return redirect(url_for('todas_categorias'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f"Ocorreu um erro: {e}", "error")
+        return redirect(url_for('nova_categoria'))
+
+    finally:
+        cursor.close()
+
+
+@app.route('/servico_extra')
+def servico_extra():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+    return render_template("servico_extra.html")
+
+
+@app.route('/cadastrar_servico_extra', methods=['POST'])
+def cadastrar_servico_extra():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    servico_realizado = request.form['servico_realizado'].strip()
+    valor = float(request.form['valor'])
+    data = request.form['data']
+    descricao = request.form['descricao'].strip()
+
+    if not servico_realizado:
+        flash('O campo "Serviço Realizado" não pode ser vazio!', 'error')
+        return redirect(url_for('cadastrar_servico_extra'))
+
+    if valor <= 0:
+        flash('O campo "Valor Recebido" deve ser maior que zero!', 'error')
+        return redirect(url_for('cadastrar_servico_extra'))
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""INSERT INTO SERVICO_EXTRA (SERVICO_REALIZADO, VALOR, DATA_SERVICO, DESCRICAO, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, ?, 1)""", (servico_realizado, valor, data, descricao, id_usuario, ))
+        con.commit()
+        flash('Serviço cadastrado com sucesso!', 'success')
+        return redirect(url_for('dashboard'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f"Ocorreu um erro: {e}", "error")
+        return redirect(url_for('servico_extra'))
+
+    finally:
+        cursor.close()
+
+@app.route('/dia_trabalhado')
+def dia_trabalhado():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+    return render_template("dia_trabalhado.html")
+
+@app.route('/cadastrar_dia_trabalhado')
+def cadastrar_dia_trabalhado():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    data = request.form['data']
+    pacotes_coletados = request.form['pacotes_coletados']
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""INSERT INTO DIA_TRABALHADO (DATA_TRABALHO, PACOTES_COLETADOS, ID_USUARIO, STATUS) VALUES(?,?,?,1)""", (data, pacotes_coletados, id_usuario,))
+        con.commit()
+        flash('Dia trabalhado registrado com sucesso!', 'success')
+        return redirect(url_for('dashboard'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f"Ocorreu um erro: {e}", "error")
+        return redirect(url_for('dia_trabalhado'))
 
     finally:
         cursor.close()
