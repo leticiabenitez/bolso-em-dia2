@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Desktop\bolso-em-dia-main\BANCO.FDB"
+database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -85,13 +85,13 @@ def cadastrar_usuario():
         return redirect(url_for('pagina_cadastro'))
 
     data_nasc = request.form['data_nasc']
-    telefone = request.form['telefone'].strip().replace("(","").replace(")","").replace("-","")
+    telefone = request.form['telefone'].strip()
 
     if not telefone:
         flash('O campo "Telefone" não pode ficar vazio!', 'error')
         return redirect(url_for('pagina_cadastro'))
 
-    cpf = request.form['cpf'].strip().replace(".","").replace("-","")
+    cpf = request.form['cpf'].strip()
 
     if not cpf:
         flash('O campo "CPF" não pode ficar vazio!', 'error')
@@ -869,7 +869,8 @@ def cadastrar_servico_extra():
     cursor = con.cursor()
 
     try:
-        cursor.execute("""INSERT INTO SERVICO_EXTRA (SERVICO_REALIZADO, VALOR, DATA_SERVICO, DESCRICAO, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, ?, 1)""", (servico_realizado, valor, data, descricao, id_usuario, ))
+        cursor.execute(
+            """INSERT INTO SERVICO_EXTRA (SERVICO_REALIZADO, VALOR, DATA_SERVICO, DESCRICAO, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, 1)""", (servico_realizado, valor, data, descricao, id_usuario))
         con.commit()
         flash('Serviço cadastrado com sucesso!', 'success')
         return redirect(url_for('dashboard'))

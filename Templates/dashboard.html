@@ -40,7 +40,7 @@
                 <span>Dia Trabalhado</span>
             </a>
 
-            <a href="#">
+            <a href="{{ url_for('servico_extra') }}">
                 <img src="{{ url_for('static', filename='uploads/perfil-servico-extra.png') }}" alt="">
                 <span>Serviço Extra</span>
             </a>
@@ -340,28 +340,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const ctx = document.getElementById('myChart');
 
+    const ctx = document.getElementById('myChart');
     const ganhosMensais = {{ ganhos_mensais | tojson }};
 
     new Chart(ctx, {
         type: 'bar',
 
         data: {
-            labels: [
-                'Jan',
-                'Fev',
-                'Mar',
-                'Abr',
-                'Mai',
-                'Jun',
-                'Jul',
-                'Ago',
-                'Set',
-                'Out',
-                'Nov',
-                'Dez'
-            ],
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
 
             datasets: [{
                 data: ganhosMensais,
@@ -389,7 +376,6 @@
                     }
                 }
             },
-
             scales: {
                 x: {
                     beginAtZero: true,

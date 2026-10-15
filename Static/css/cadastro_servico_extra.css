@@ -1,0 +1,512 @@
+body {
+    background-color: var(--branco-acinzentado);
+}
+
+.titulo-servico {
+    padding: 18px 10px 20px;
+}
+
+.titulo-servico p {
+    font-size: 14px;
+}
+
+.titulo-servico h1 {
+    margin: 3px 0;
+    font-size: 32px;
+}
+
+.card-servico {
+    width: 100%;
+    padding: 22px;
+    background-color: var(--branco);
+    border: 1px solid var(--cinza);
+    border-radius: 18px;
+}
+
+.cabecalho-servico {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 38px;
+}
+
+.icone-servico {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--verde-clarinho);
+    border-radius: 10px;
+}
+
+.icone-servico img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.cabecalho-servico h2 {
+    font-size: 26px;
+}
+
+.cabecalho-servico p {
+    font-size: 15px;
+}
+
+.grupo-servico {
+    width: 100%;
+}
+
+.grupo-servico label,
+.grupo-descricao label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--azul-cinzento-escuro);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.grupo-servico label span {
+    color: var(--vermelho);
+}
+
+.grupo-servico > input {
+    width: 100%;
+    height: 51px;
+    padding: 0 12px;
+    border: 1px solid var(--cinza);
+    border-radius: 9px;
+    background-color: var(--branco);
+    color: var(--azul-cinzento-escuro);
+    font-size: 14px;
+    outline: none;
+}
+
+.linha-servico {
+    width: 100%;
+    margin-top: 25px;
+    display: flex;
+    gap: 18px;
+}
+
+.linha-servico .grupo-servico {
+    width: 50%;
+}
+
+.campo-valor {
+    width: 100%;
+    height: 51px;
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--cinza);
+    border-radius: 9px;
+}
+
+.campo-valor strong {
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--cinza-claro);
+    color: var(--cinza-escuro);
+}
+
+.campo-valor input {
+    width: 100%;
+    padding: 0 12px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+}
+
+.campo-data {
+    width: 100%;
+    height: 51px;
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--cinza);
+    border-radius: 9px;
+    background-color: var(--branco);
+}
+
+.icone-campo {
+    width: 50px;
+    flex: 0 0 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--cinza-claro);
+}
+
+.icone-campo img {
+    width: 23px;
+    height: 23px;
+    object-fit: contain;
+}
+
+.campo-data input {
+    width: 100%;
+    padding: 0 12px;
+    border: none;
+    outline: none;
+    background-color: var(--branco);
+    color: var(--azul-cinzento-escuro);
+    font-size: 14px;
+}
+
+.grupo-descricao {
+    width: 100%;
+    margin-top: 25px;
+}
+
+.campo-descricao {
+    width: 100%;
+    position: relative;
+}
+
+.campo-descricao textarea {
+    width: 100%;
+    height: 190px;
+    padding: 16px 16px 16px 54px;
+    resize: none;
+    border: 1px solid var(--cinza);
+    border-radius: 9px;
+    outline: none;
+    font-size: 14px;
+}
+
+.icone-descricao {
+    width: 27px;
+    height: 27px;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    object-fit: contain;
+    z-index: 2;
+}
+
+.contador-descricao {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    color: var(--cinza-escuro);
+    font-size: 10px;
+}
+
+.botoes-servico {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancelar-servico,
+.registrar-servico {
+    width: 190px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.cancelar-servico {
+    background-color: var(--branco);
+    color: var(--azul-cinzento-escuro);
+    border: 1px solid var(--cinza);
+}
+
+.cancelar-servico:hover {
+    text-decoration: none;
+}
+
+.registrar-servico {
+    background-color: var(--verde-escuro);
+    color: var(--branco);
+    border: none;
+}
+
+.campo-valor input[type="number"]::-webkit-inner-spin-button,
+.campo-valor input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.campo-valor input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.campo-data input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+/* TABLET */
+
+@media (min-width: 767px) and (max-width: 1023px) {
+    .titulo-servico h1 {
+        font-size: 28px;
+    }
+
+    .card-servico {
+        padding: 18px;
+    }
+
+    .cabecalho-servico {
+        margin-bottom: 28px;
+    }
+
+    .cabecalho-servico h2 {
+        font-size: 22px;
+    }
+
+    .linha-servico {
+        gap: 14px;
+    }
+}
+
+/* MOBILE L */
+
+@media (min-width: 375px) and (max-width: 424px) {
+    .titulo-servico {
+        padding: 5px 2px 15px;
+    }
+
+    .titulo-servico h1 {
+        font-size: 27px;
+    }
+
+    .card-servico {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .cabecalho-servico {
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+
+    .icone-servico {
+        width: 48px;
+        height: 48px;
+    }
+
+    .icone-servico img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .cabecalho-servico h2 {
+        font-size: 19px;
+    }
+
+    .cabecalho-servico p {
+        font-size: 12px;
+    }
+
+    .grupo-servico label,
+    .grupo-descricao label {
+        font-size: 14px;
+    }
+
+    .linha-servico {
+        margin-top: 17px;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .linha-servico .grupo-servico {
+        width: 100%;
+    }
+
+    .grupo-descricao {
+        margin-top: 17px;
+    }
+
+    .campo-descricao textarea {
+        height: 150px;
+    }
+
+    .botoes-servico {
+        flex-direction: column;
+    }
+
+    .cancelar-servico,
+    .registrar-servico {
+        width: 100%;
+    }
+
+    .registrar-servico {
+        order: 1;
+    }
+
+    .cancelar-servico {
+        order: 2;
+    }
+}
+
+/* MOBILE M */
+
+@media (min-width: 320px) and (max-width: 374px) {
+    .titulo-servico {
+        padding: 5px 2px 15px;
+    }
+
+    .titulo-servico h1 {
+        font-size: 24px;
+    }
+
+    .card-servico {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .cabecalho-servico {
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .icone-servico {
+        width: 45px;
+        height: 45px;
+    }
+
+    .icone-servico img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .cabecalho-servico h2 {
+        font-size: 17px;
+    }
+
+    .cabecalho-servico p {
+        font-size: 11px;
+    }
+
+    .grupo-servico label,
+    .grupo-descricao label {
+        font-size: 14px;
+    }
+
+    .linha-servico {
+        margin-top: 16px;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .linha-servico .grupo-servico {
+        width: 100%;
+    }
+
+    .grupo-descricao {
+        margin-top: 16px;
+    }
+
+    .campo-descricao textarea {
+        height: 145px;
+    }
+
+    .botoes-servico {
+        flex-direction: column;
+    }
+
+    .cancelar-servico,
+    .registrar-servico {
+        width: 100%;
+    }
+
+    .registrar-servico {
+        order: 1;
+    }
+
+    .cancelar-servico {
+        order: 2;
+    }
+}
+
+/* MOBILE S */
+
+@media (max-width: 319px) {
+    .titulo-servico {
+        padding: 4px 1px 12px;
+    }
+
+    .titulo-servico p {
+        font-size: 12px;
+    }
+
+    .titulo-servico h1 {
+        font-size: 21px;
+    }
+
+    .card-servico {
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .cabecalho-servico {
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .icone-servico {
+        width: 42px;
+        height: 42px;
+    }
+
+    .icone-servico img {
+        width: 26px;
+        height: 26px;
+    }
+
+    .cabecalho-servico h2 {
+        font-size: 15px;
+    }
+
+    .cabecalho-servico p {
+        font-size: 10px;
+    }
+
+    .grupo-servico label,
+    .grupo-descricao label {
+        font-size: 13px;
+    }
+
+    .linha-servico {
+        margin-top: 15px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .linha-servico .grupo-servico {
+        width: 100%;
+    }
+
+    .grupo-descricao {
+        margin-top: 15px;
+    }
+
+    .campo-descricao textarea {
+        height: 140px;
+    }
+
+    .botoes-servico {
+        flex-direction: column;
+    }
+
+    .cancelar-servico,
+    .registrar-servico {
+        width: 100%;
+    }
+
+    .registrar-servico {
+        order: 1;
+    }
+
+    .cancelar-servico {
+        order: 2;
+    }
+}
