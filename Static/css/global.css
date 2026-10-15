@@ -355,6 +355,7 @@ button {
     font-size: 16px;
     text-decoration: none;
     border-radius: 6px;
+    transition: 0.2s all
 }
 
 .navegacao-perfil a span {
