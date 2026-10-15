@@ -75,13 +75,28 @@ def cadastrar_usuario():
     nome = request.form['nome'].strip()
 
     if not nome:
-        flash('O nome não pode ficar vazio!', 'error')
+        flash('O campo "Nome" não pode ficar vazio!', 'error')
         return redirect(url_for('pagina_cadastro'))
 
-    email = request.form['email']
+    email = request.form['email'].strip()
+
+    if not email:
+        flash('O campo "E-mail" não pode ficar vazio!', 'error')
+        return redirect(url_for('pagina_cadastro'))
+
     data_nasc = request.form['data_nasc']
-    telefone = request.form['telefone']
-    cpf = request.form['cpf']
+    telefone = request.form['telefone'].strip()
+
+    if not telefone:
+        flash('O campo "Telefone" não pode ficar vazio!', 'error')
+        return redirect(url_for('pagina_cadastro'))
+
+    cpf = request.form['cpf'].strip()
+
+    if not cpf:
+        flash('O campo "CPF" não pode ficar vazio!', 'error')
+        return redirect(url_for('pagina_cadastro'))
+
     senha = request.form['senha']
     confirmar = request.form['confirmar']
 
