@@ -263,40 +263,242 @@ def dashboard():
     cursor = con.cursor()
 
     try:
-        cursor.execute("""SELECT NOME_COMPLETO FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
-
+        cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
         usuario = cursor.fetchone()
 
-        return render_template("dashboard.html", usuario=usuario[0])
+        valor_diaria = float(usuario[5] or 0)
+        adicional = float(usuario[6] or 0)
+        min_pacotes = int(usuario[7] or 0)
+
+        ano_atual = datetime.now().year
+        ano_anterior = ano_atual - 1
+
+        ganho_ano = 0
+        despesas_ano = 0
+
+        ganho_anterior = 0
+        despesas_anterior = 0
+
+        dias_trabalhados_ano = 0
+        dias_trabalhados_anterior = 0
+
+        pacotes_ano = 0
+        pacotes_anterior = 0
+
+        ganhos_mensais = [0] * 12
+        despesas_mensais = [0] * 12
+
+        cursor.execute("""SELECT DATA_TRABALHO, PACOTES_RECEBIDOS FROM DIA_TRABALHADO WHERE ID_USUARIO = ?""", (id_usuario,))
+        dias_trabalhados = cursor.fetchall()
+
+        for dia in dias_trabalhados:
+            data_trabalho = dia[0]
+            pacotes = dia[1] or 0
+
+            if data_trabalho.year == ano_atual:
+                dias_trabalhados_ano += 1
+                pacotes_ano += pacotes
+
+                ganho_dia = valor_diaria
+
+                if pacotes > min_pacotes:
+                    pacotes_extras = pacotes - min_pacotes
+                    ganho_dia += pacotes_extras * adicional
+
+                ganho_ano += ganho_dia
+
+                mes = data_trabalho.month - 1
+                ganhos_mensais[mes] += ganho_dia
+
+            elif data_trabalho.year == ano_anterior:
+                dias_trabalhados_anterior += 1
+                pacotes_anterior += pacotes
+
+                ganho_dia = valor_diaria
+
+                if pacotes > min_pacotes:
+                    pacotes_extras = pacotes - min_pacotes
+                    ganho_dia += pacotes_extras * adicional
+
+                ganho_anterior += ganho_dia
+
+
+        cursor.execute("""SELECT DATA_SERVICO, VALOR FROM SERVICO_EXTRA WHERE ID_USUARIO = ?""", (id_usuario,))
+        servicos_extras = cursor.fetchall()
+
+        for servico in servicos_extras:
+            data_servico = servico[0]
+            valor_servico = float(servico[1] or 0)
+
+            if data_servico.year == ano_atual:
+                ganho_ano += valor_servico
+
+                mes = data_servico.month - 1
+                ganhos_mensais[mes] += valor_servico
+
+            elif data_servico.year == ano_anterior:
+                ganho_anterior += valor_servico
+
+
+        cursor.execute("""SELECT DATA_MOVIMENTACAO, VALOR, TIPO FROM MOVIMENTACAO WHERE ID_USUARIO = ?""", (id_usuario,))
+        movimentacoes = cursor.fetchall()
+
+        for movimentacao in movimentacoes:
+            data_movimentacao = movimentacao[0]
+            valor = float(movimentacao[1] or 0)
+            tipo = movimentacao[2]
+
+            if data_movimentacao.year == ano_atual:
+
+                if tipo == 1:
+                    ganho_ano += valor
+
+                    mes = data_movimentacao.month - 1
+                    ganhos_mensais[mes] += valor
+
+
+                elif tipo == 2:
+
+                    despesas_ano += valor
+
+                    mes = data_movimentacao.month - 1
+
+                    despesas_mensais[mes] += valor
+
+            elif data_movimentacao.year == ano_anterior:
+
+                if tipo == 1:
+                    ganho_anterior += valor
+
+
+                elif tipo == 2:
+
+                    despesas_ano += valor
+
+                    mes = data_movimentacao.month - 1
+
+                    despesas_mensais[mes] += valor
+
+
+        saldo_atual = ganho_ano - despesas_ano
+        saldo_anterior = ganho_anterior - despesas_anterior
+
+
+        if dias_trabalhados_ano > 0:
+            media_ganho_dia = ganho_ano / dias_trabalhados_ano
+        else:
+            media_ganho_dia = 0
+
+        if dias_trabalhados_anterior > 0:
+            media_ganho_dia_anterior = ganho_anterior / dias_trabalhados_anterior
+        else:
+            media_ganho_dia_anterior = 0
+
+
+        if ganho_anterior > 0:
+            ganho_percentual = round(abs((ganho_ano - ganho_anterior) / ganho_anterior * 100))
+        else:
+            ganho_percentual = 0
+
+        if despesas_anterior > 0:
+            despesas_percentual = round(abs((despesas_ano - despesas_anterior) / despesas_anterior * 100))
+        else:
+            despesas_percentual = 0
+
+        if saldo_anterior != 0:
+            saldo_percentual = round(abs((saldo_atual - saldo_anterior) / saldo_anterior * 100))
+        else:
+            saldo_percentual = 0
+
+        if dias_trabalhados_anterior > 0:
+            dias_percentual = round(abs((dias_trabalhados_ano - dias_trabalhados_anterior) / dias_trabalhados_anterior * 100))
+        else:
+            dias_percentual = 0
+
+        if pacotes_anterior > 0:
+            pacotes_percentual = round(abs((pacotes_ano - pacotes_anterior) / pacotes_anterior * 100))
+        else:
+            pacotes_percentual = 0
+
+        if media_ganho_dia_anterior > 0:
+            media_percentual = round(abs((media_ganho_dia - media_ganho_dia_anterior) / media_ganho_dia_anterior * 100))
+        else:
+            media_percentual = 0
+
+
+        ganho_subiu = ganho_ano > ganho_anterior
+        despesas_subiram = despesas_ano > despesas_anterior
+        saldo_subiu = saldo_atual > saldo_anterior
+
+        dias_subiram = dias_trabalhados_ano > dias_trabalhados_anterior
+        pacotes_subiram = pacotes_ano > pacotes_anterior
+        media_subiu = media_ganho_dia > media_ganho_dia_anterior
+
+        saldo_negativo = saldo_atual < 0
+
+
+        mes_atual = datetime.now().month
+        saldo_mes_atual = ganhos_mensais[mes_atual - 1] - despesas_mensais[mes_atual - 1]
+
+        if mes_atual > 1:
+            saldo_mes_anterior = ganhos_mensais[mes_atual - 2] - despesas_mensais[mes_atual - 2]
+        else:
+            saldo_mes_anterior = 0
+
+        if saldo_mes_anterior != 0:
+            projecao_percentual = round(abs((saldo_mes_atual - saldo_mes_anterior) / saldo_mes_anterior * 100))
+        else:
+            projecao_percentual = 0
+
+        projecao_subiu = saldo_mes_atual > saldo_mes_anterior
+
+        saldo_projetado_mensal = saldo_atual / mes_atual
+        saldo_projetado_anual = saldo_projetado_mensal * 12
+
+
+        return render_template(
+            'dashboard.html',
+
+            usuario=usuario,
+            ano_atual=ano_atual,
+
+            ganho_ano=ganho_ano,
+            despesas_ano=despesas_ano,
+            saldo_atual=saldo_atual,
+
+            ganho_percentual=ganho_percentual,
+            despesas_percentual=despesas_percentual,
+            saldo_percentual=saldo_percentual,
+
+            ganho_subiu=ganho_subiu,
+            despesas_subiram=despesas_subiram,
+            saldo_subiu=saldo_subiu,
+            saldo_negativo=saldo_negativo,
+
+            ganhos_mensais=ganhos_mensais,
+
+            dias_trabalhados_ano=dias_trabalhados_ano,
+            pacotes_ano=pacotes_ano,
+            media_ganho_dia=media_ganho_dia,
+
+            dias_percentual=dias_percentual,
+            pacotes_percentual=pacotes_percentual,
+            media_percentual=media_percentual,
+
+            dias_subiram=dias_subiram,
+            pacotes_subiram=pacotes_subiram,
+            media_subiu=media_subiu,
+
+            saldo_projetado_mensal=saldo_projetado_mensal,
+            saldo_projetado_anual=saldo_projetado_anual,
+
+            projecao_percentual=projecao_percentual,
+            projecao_subiu=projecao_subiu
+        )
 
     except Exception as e:
         flash(f'Ocorreu um erro: {e}', 'error')
         return redirect(url_for('pagina_login'))
-
-    finally:
-        cursor.close()
-
-@app.route('/perfil', methods=['GET'])
-def perfil():
-    if 'id_usuario' not in session:
-        flash('É necessário realizar o login', 'error')
-        return redirect(url_for('pagina_login'))
-
-    id_usuario = session['id_usuario']
-
-    cursor = con.cursor()
-
-    try:
-        cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""",(id_usuario,))
-
-        usuario = cursor.fetchone()
-
-        return render_template('perfil.html', usuario=usuario)
-
-    except Exception as e:
-        con.rollback()
-        flash(f'Ocorreu um erro: {e}', 'error')
-        return redirect(url_for('dashboard'))
 
     finally:
         cursor.close()
