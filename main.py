@@ -351,33 +351,24 @@ def dashboard():
             if data_movimentacao.year == ano_atual:
 
                 if tipo == 1:
+                    despesas_ano += valor
+
+                    mes = data_movimentacao.month - 1
+                    despesas_mensais[mes] += valor
+
+                elif tipo == 2:
                     ganho_ano += valor
 
                     mes = data_movimentacao.month - 1
                     ganhos_mensais[mes] += valor
 
-
-                elif tipo == 2:
-
-                    despesas_ano += valor
-
-                    mes = data_movimentacao.month - 1
-
-                    despesas_mensais[mes] += valor
-
             elif data_movimentacao.year == ano_anterior:
 
                 if tipo == 1:
-                    ganho_anterior += valor
-
+                    despesas_anterior += valor
 
                 elif tipo == 2:
-
-                    despesas_ano += valor
-
-                    mes = data_movimentacao.month - 1
-
-                    despesas_mensais[mes] += valor
+                    ganho_anterior += valor
 
 
         saldo_atual = ganho_ano - despesas_ano
@@ -861,6 +852,85 @@ def cadastrar_dia_trabalhado():
         con.rollback()
         flash(f"Ocorreu um erro: {e}", "error")
         return redirect(url_for('dia_trabalhado'))
+
+    finally:
+        cursor.close()
+
+@app.route('/movimentacao')
+def movimentacao():
+
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
+        usuario = cursor.fetchone()
+
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 ORDER BY NOME_CATEGORIA""", (id_usuario,))
+        categorias = cursor.fetchall()
+
+        return render_template('movimentacao.html', usuario=usuario, categorias=categorias)
+
+    except Exception as e:
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
+
+
+@app.route('/cadastrar_movimentacao', methods=['POST'])
+def cadastrar_movimentacao():
+
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    valor = float(request.form['valor'])
+    tipo = int(request.form['tipo'])
+    data = request.form['data']
+    categoria = int(request.form['categoria'])
+    descricao = request.form['descricao'].strip()
+
+    if valor <= 0:
+        flash('O valor deve ser maior que zero!', 'error')
+        return redirect(url_for('movimentacao'))
+
+    if tipo != 1 and tipo != 2:
+        flash('Selecione um tipo válido!', 'error')
+        return redirect(url_for('movimentacao'))
+
+    if not data:
+        flash('Informe a data da movimentação!', 'error')
+        return redirect(url_for('movimentacao'))
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT 1 FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND TIPO = ? AND STATUS = 1""", (categoria, id_usuario, tipo))
+
+        if not cursor.fetchone():
+            flash('Selecione uma categoria válida!', 'error')
+            return redirect(url_for('movimentacao'))
+
+        cursor.execute("""INSERT INTO MOVIMENTACAO (VALOR, TIPO, DATA_MOVIMENTACAO, DESCRICAO, ID_CATEGORIA, ID_USUARIO) VALUES (?, ?, ?, ?, ?, ?)""", (valor, tipo, data, descricao, categoria, id_usuario))
+
+        con.commit()
+
+        flash('Movimentação cadastrada com sucesso!', 'success')
+        return redirect(url_for('dashboard'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('movimentacao'))
 
     finally:
         cursor.close()
