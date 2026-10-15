@@ -85,13 +85,13 @@ def cadastrar_usuario():
         return redirect(url_for('pagina_cadastro'))
 
     data_nasc = request.form['data_nasc']
-    telefone = request.form['telefone'].strip()
+    telefone = request.form['telefone'].strip().replace("(","").replace(")","").replace("-","")
 
     if not telefone:
         flash('O campo "Telefone" não pode ficar vazio!', 'error')
         return redirect(url_for('pagina_cadastro'))
 
-    cpf = request.form['cpf'].strip()
+    cpf = request.form['cpf'].strip().replace(".","").replace("-","")
 
     if not cpf:
         flash('O campo "CPF" não pode ficar vazio!', 'error')
