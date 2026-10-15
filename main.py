@@ -288,7 +288,7 @@ def dashboard():
         ganhos_mensais = [0] * 12
         despesas_mensais = [0] * 12
 
-        cursor.execute("""SELECT DATA_TRABALHO, PACOTES_RECEBIDOS FROM DIA_TRABALHADO WHERE ID_USUARIO = ?""", (id_usuario,))
+        cursor.execute("""SELECT DATA_TRABALHO, PACOTES_COLETADOS FROM DIA_TRABALHADO WHERE ID_USUARIO = ?""", (id_usuario,))
         dias_trabalhados = cursor.fetchall()
 
         for dia in dias_trabalhados:
