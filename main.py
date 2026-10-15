@@ -122,8 +122,13 @@ def cadastrar_usuario():
 def cadastrar_informacoes():
 
     valor_diaria = float(request.form['valor_diaria'])
-    adicional = request.form['adicional']
+    adicional = float(request.form['adicional'])
     min_pacotes = int(request.form['min_pacotes'])
+
+    if valor_diaria < 0 or adicional < 0 or min_pacotes < 0:
+        flash('Os valores não podem ser negativos!', 'error')
+        return redirect(url_for('pagina_cadastro'))
+
     dados = session['cadastro']
     cursor = con.cursor()
     try:
@@ -325,8 +330,12 @@ def editar_usuario():
             cpf = request.form['cpf']
             senha_nova = request.form['senha']
             valor_diaria = float(request.form['valor_diaria'])
-            adicional = request.form['adicional']
+            adicional = float(request.form['adicional'])
             min_pacotes = int(request.form['min_pacotes'])
+
+            if valor_diaria < 0 or adicional < 0 or min_pacotes < 0:
+                flash('Os valores não podem ser negativos!', 'error')
+                return redirect(url_for('pagina_cadastro'))
 
             cursor.execute("""SELECT 1 FROM USUARIO WHERE (upper(EMAIL) = ? OR TELEFONE = ? OR CPF = ?) AND ID_USUARIO <> ? """, (email.upper(), telefone, cpf, id_usuario))
 
