@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
+database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -661,7 +661,7 @@ def editar_usuario():
 
 # SOMENTE CADASTRO DE CATEGORIA QUE ESTÁ FINALIZADO, O RESTANTE SERÁ NECESSÁRIO TIRAR DÚVIDAS (CONFERIR TBM A DASHBOARD)
 
-@app.route('/todas_categorias', method=['GET'])
+@app.route('/todas_categorias', methods=['GET'])
 def todas_categorias():
     if 'id_usuario' not in session:
         flash('É necessário realizar o login', 'error')
