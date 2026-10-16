@@ -1,49 +1,8 @@
-
 .pagina-perfil {
     min-height: 100vh;
     display: flex;
 }
 
-.logo-perfil {
-    width: 180px;
-    margin: 0 auto 35px;
-}
-
-.navegacao-perfil {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.navegacao-perfil a,
-.sair-perfil {
-    min-height: 34px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    color: var(--azul-cinzento-escuro);
-    font-size: 16px;
-    text-decoration: none;
-}
-
-.navegacao-perfil a img,
-.sair-perfil img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-}
-
-.navegacao-perfil a:hover,
-.sair-perfil:hover {
-    color: var(--verde-escuro);
-    text-decoration: none;
-}
-
-.sair-perfil {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid var(--cinza-claro);
-}
 
 .conteudo-perfil {
     width: calc(100% - 250px);

@@ -244,6 +244,18 @@ body {
     display: none;
 }
 
+.ver-categorias {
+    display: inline-block;
+    margin-top: 7px;
+    color: var(--verde-escuro);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ver-categorias:hover {
+    text-decoration: underline;
+}
+
 /* TABLET */
 
 @media (min-width: 767px) and (max-width: 1023px) {
