@@ -68,10 +68,10 @@
 
                 <div class="usuario-logado">
                     <!-- verificamos se o usuário possui uma foto de perfil cadastrada no banco -->
-                    {% if usuario[8] %}
+                    {% if usuario[9] %}
 
                         <!-- se existir uma foto cadastrada, mostramos a imagem do usuário no canto superior direito -->
-                        <img src="{{ url_for('static', filename='Uploads/' + usuario[8]) }}" alt="Foto do usuário">
+                        <img src="{{ url_for('static', filename='Uploads/' + usuario[9]) }}" alt="Foto do usuário">
                     {% else %}
 
                         <!-- caso não exista uma foto cadastrada, continuamos mostrando o ícone padrão do sistema -->
@@ -114,10 +114,10 @@
                             <input type="file" name="foto" accept=".jpg,.jpeg,.png,.webp" onchange="mostrarFoto(this)">
 
                             <!-- verifica se o usuário possui uma foto cadastrada no banco -->
-                            {% if usuario[8] %}
+                            {% if usuario[9] %}
 
                                 <!-- se existir uma foto, mostra a imagem escolhida pelo usuário -->
-                                <img id="imagem-perfil" src="{{ url_for('static', filename='Uploads/' + usuario[8]) }}" alt="Foto de perfil">
+                                <img id="imagem-perfil" src="{{ url_for('static', filename='Uploads/' + usuario[9]) }}" alt="Foto de perfil">
                             {% else %}
 
                                 <!-- se não existir uma foto cadastrada, mostra a imagem padrão -->
@@ -133,7 +133,7 @@
                                 <label for="valor_diaria">Valor da diária</label>
                                 <div class="campo-configuracao">
                                     <span>R$</span>
-                                    <input type="text" id="valor_diaria" name="valor_diaria" value="{{ usuario[5] }}">
+                                    <input type="text" id="valor_diaria" name="valor_diaria" value="{{ usuario[6] }}">
                                 </div>
                             </div>
 
@@ -143,7 +143,7 @@
                                     <span class="icone-pacote">
                                         <img src="static/uploads/caixa.png" alt="">
                                     </span>
-                                    <input type="number" id="min_pacotes" name="min_pacotes" value="{{ usuario[7] }}">
+                                    <input type="number" id="min_pacotes" name="min_pacotes" value="{{ usuario[8] }}">
                                 </div>
                             </div>
 
@@ -151,7 +151,7 @@
                                 <label for="adicional">Valor do adicional</label>
                                 <div class="campo-configuracao">
                                     <span>R$</span>
-                                    <input type="text" id="adicional" name="adicional" value="{{ usuario[6] }}">
+                                    <input type="text" id="adicional" name="adicional" value="{{ usuario[7] }}">
                                 </div>
                             </div>
                         </div>

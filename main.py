@@ -17,9 +17,10 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Borella\Downloads\bolso-em-dia-main\BANCO.FDB"
+database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
+
 
 con = fdb.connect(host=host, database=database, user=user, password=password)
 
@@ -57,7 +58,7 @@ def validar_senha(senha):
 
 def buscar_dados(id_usuario):
     cursor = con.cursor()
-    cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""",(id_usuario,))
+    cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, SENHA, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""",(id_usuario,))
     usuario = cursor.fetchone()
     return usuario
 
@@ -197,9 +198,6 @@ def login():
     login = request.form['login']
     senha = request.form['senha']
 
-    print("Login digitado:", repr(login))
-    print("Tamanho:", len(login))
-
     cursor = con.cursor()
 
     try:
@@ -286,9 +284,9 @@ def dashboard():
     try:
         usuario = buscar_dados(id_usuario)
 
-        valor_diaria = float(usuario[5] or 0)
-        adicional = float(usuario[6] or 0)
-        min_pacotes = int(usuario[7] or 0)
+        valor_diaria = float(usuario[6] or 0)
+        adicional = float(usuario[7] or 0)
+        min_pacotes = int(usuario[8] or 0)
 
         ano_atual = datetime.now().year
         ano_anterior = ano_atual - 1

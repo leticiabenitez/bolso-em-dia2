@@ -66,8 +66,8 @@
                 <div></div>
 
                 <div class="usuario-logado">
-                    {% if usuario[8] %}
-                        <img src="{{ url_for('static', filename='Uploads/' + usuario[8]) }}" alt="Foto do usuário">
+                    {% if usuario[9] %}
+                        <img src="{{ url_for('static', filename='Uploads/' + usuario[9]) }}" alt="Foto do usuário">
                     {% else %}
                         <img src="{{ url_for('static', filename='Uploads/perfil-usuario-topo.png') }}" alt="Foto padrão">
                     {% endif %}
@@ -100,8 +100,8 @@
 
                 <div class="dados-principais">
                     <div class="foto-perfil">
-                        {% if usuario[8] %}
-                            <img src="{{ url_for('static', filename='Uploads/' + usuario[8]) }}" alt="Foto de perfil">
+                        {% if usuario[9] %}
+                            <img src="{{ url_for('static', filename='Uploads/' + usuario[9]) }}" alt="Foto de perfil">
                         {% else %}
                             <img src="{{ url_for('static', filename='Uploads/perfil-foto.png') }}" alt="Foto de perfil">
                         {% endif %}
@@ -112,7 +112,7 @@
                             <h2>Valor da diária</h2>
                             <div class="campo-configuracao somente-leitura">
                                 <span>R$</span>
-                                <p>{{ usuario[5] }}</p>
+                                <p>{{ usuario[6] }}</p>
                             </div>
                         </div>
 
@@ -122,7 +122,7 @@
                                 <span class="icone-pacote">
                                     <img src="static/uploads/caixa.png" alt="">
                                 </span>
-                                <p>{{ usuario[7] }}</p>
+                                <p>{{ usuario[8] }}</p>
                             </div>
                         </div>
 
@@ -130,7 +130,7 @@
                             <h2>Valor do adicional</h2>
                             <div class="campo-configuracao somente-leitura">
                                 <span>R$</span>
-                                <p>{{ usuario[6] }}</p>
+                                <p>{{ usuario[7] }}</p>
                             </div>
                         </div>
                     </div>
