@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
+database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -1203,10 +1203,22 @@ def movimentacao():
         return redirect(url_for('pagina_login'))
 
     id_usuario = session['id_usuario']
-    usuario = buscar_dados(id_usuario)
-    return render_template("movimentacao.html", usuario=usuario)
+    cursor = con.cursor()
 
+    try:
+        usuario = buscar_dados(id_usuario)
 
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE STATUS = 1 AND (ID_CATEGORIA IN (1, 2) OR ID_USUARIO = ?) ORDER BY NOME_CATEGORIA""", (id_usuario,))
+        categorias = cursor.fetchall()
+
+        return render_template("movimentacao.html", usuario=usuario, categorias=categorias)
+
+    except Exception as e:
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
 
 @app.route('/cadastrar_movimentacao', methods=['POST'])
 def cadastrar_movimentacao():
@@ -1247,8 +1259,9 @@ def cadastrar_movimentacao():
 
     try:
         cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND STATUS = 1 AND ID_CATEGORIA IN(1, 2)
-            UNION
-            SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND STATUS = 1""", (categoria, categoria, id_usuario))
+                    UNION
+                    SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND STATUS = 1""",
+                    (categoria, categoria, id_usuario))
 
         if not cursor.fetchone():
             flash('Categoria inválida!', 'error')
