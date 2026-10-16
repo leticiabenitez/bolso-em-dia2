@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
+database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -339,6 +339,7 @@ def dashboard():
                     ganho_dia += pacotes_extras * adicional
 
                 ganho_anterior += ganho_dia
+
 
         cursor.execute("""SELECT DATA_SERVICO, VALOR FROM SERVICO_EXTRA WHERE ID_USUARIO = ?""", (id_usuario,))
         servicos_extras = cursor.fetchall()
@@ -677,9 +678,9 @@ def todas_categorias():
     try:
         usuario = buscar_dados(id_usuario)
 
-        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1,2)
+        cursor.execute(""" SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1,2)
         UNION
-        SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario,))
+        SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario, ))
         categorias = cursor.fetchall()
 
         return render_template("categorias.html", categoria=categorias, usuario=usuario)
@@ -1034,6 +1035,18 @@ def dia_trabalhado():
     usuario = buscar_dados(id_usuario)
     return render_template("dia_trabalhado.html", usuario=usuario)
 
+
+def calcular_valor_total(pacotes, valor_diaria, adicional, min_pacotes):
+    valor_total = valor_diaria
+
+    if pacotes > min_pacotes:
+        pacotes_excedentes = pacotes - min_pacotes
+        valor_adicional = pacotes_excedentes * adicional
+        valor_total = valor_total + valor_adicional
+
+    return valor_total
+
+
 @app.route('/cadastrar_dia_trabalhado', methods=['POST'])
 def cadastrar_dia_trabalhado():
     if 'id_usuario' not in session:
@@ -1052,7 +1065,26 @@ def cadastrar_dia_trabalhado():
     cursor = con.cursor()
 
     try:
-        cursor.execute("""INSERT INTO DIA_TRABALHADO (DATA_TRABALHO, PACOTES_COLETADOS, ID_USUARIO, STATUS) VALUES(?,?,?,1)""", (data, pacotes_coletados, id_usuario,))
+        cursor.execute("""SELECT VALOR_DIARIA, ADICIONAL, MIN_PACOTES FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        dados_usuario = cursor.fetchone()
+
+        if not dados_usuario:
+            flash('Usuário não encontrado!', 'error')
+            return redirect(url_for('dia_trabalhado'))
+
+        valor_diaria = dados_usuario[0]
+        adicional = dados_usuario[1]
+        min_pacotes = dados_usuario[2]
+
+        valor_total = calcular_valor_total(
+            pacotes_coletados,
+            valor_diaria,
+            adicional,
+            min_pacotes
+        )
+
+        cursor.execute("""INSERT INTO DIA_TRABALHADO (DATA_TRABALHO, PACOTES_COLETADOS, VALOR_TOTAL, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, 1)""", (data, pacotes_coletados, valor_total, id_usuario))
         con.commit()
         flash('Dia trabalhado registrado com sucesso!', 'success')
         return redirect(url_for('dashboard'))
@@ -1455,6 +1487,9 @@ def editar_movimentacao(id):
 
     finally:
         cursor.close()
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
