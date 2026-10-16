@@ -340,7 +340,6 @@ def dashboard():
 
                 ganho_anterior += ganho_dia
 
-
         cursor.execute("""SELECT DATA_SERVICO, VALOR FROM SERVICO_EXTRA WHERE ID_USUARIO = ?""", (id_usuario,))
         servicos_extras = cursor.fetchall()
 
@@ -678,9 +677,9 @@ def todas_categorias():
     try:
         usuario = buscar_dados(id_usuario)
 
-        cursor.execute(""" SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1,2)
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1,2)
         UNION
-        SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario, ))
+        SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario,))
         categorias = cursor.fetchall()
 
         return render_template("categorias.html", categoria=categorias, usuario=usuario)
