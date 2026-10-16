@@ -1203,26 +1203,9 @@ def movimentacao():
         return redirect(url_for('pagina_login'))
 
     id_usuario = session['id_usuario']
+    usuario = buscar_dados(id_usuario)
+    return render_template("movimentacao.html", usuario=usuario)
 
-    cursor = con.cursor()
-
-    try:
-        usuario = buscar_dados(id_usuario)
-
-        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1, 2) AND STATUS = 1
-            UNION
-            SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1
-            ORDER BY NOME_CATEGORIA""", (id_usuario,))
-        categorias = cursor.fetchall()
-
-        return render_template('movimentacao.html', usuario=usuario, categorias=categorias)
-
-    except Exception as e:
-        flash(f'Ocorreu um erro: {e}', 'error')
-        return redirect(url_for('dashboard'))
-
-    finally:
-        cursor.close()
 
 
 @app.route('/cadastrar_movimentacao', methods=['POST'])
