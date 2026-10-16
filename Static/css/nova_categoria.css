@@ -203,14 +203,42 @@ body {
     opacity: 0;
 }
 
-.grade-icones img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
+.grade-icones input {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    opacity: 0;
 }
 
-.grade-icones input:checked + img {
+.icone-svg {
+    width: 28px;
+    height: 28px;
+    color: var(--azul-cinzento-escuro);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+}
+
+.grade-icones label:hover {
+    background-color: var(--verde-clarinho);
+}
+
+.icone-svg {
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    color: var(--azul-cinzento-escuro);
+}
+
+.grade-icones input:checked + .icone-svg {
+    color: var(--verde-escuro);
+}
+
+.grade-icones input:checked + .icone-svg {
     padding: 3px;
+    color: var(--verde-escuro);
     background-color: var(--verde-clarinho);
     border: 2px solid var(--verde-escuro);
     border-radius: 6px;

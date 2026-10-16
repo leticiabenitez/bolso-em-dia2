@@ -1,0 +1,253 @@
+.rendimentos-perfil {
+    background-color: var(--verde-clarinho);
+    color: var(--verde-escuro);
+    box-sizing: border-box;
+    margin-left: -10px;
+    padding-left: 10px;
+    border-radius: 4px;
+}
+
+.rendimentos-perfil span{
+    color: var(--verde-escuro)
+}
+
+.btn-adicionar-despesa {
+    width: 20%;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 11px;
+    border: none;
+    border-radius: 9px;
+    background-color: var(--verde-escuro);
+    color: var(--branco);
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 20px;
+}
+
+.btn-adicionar-despesa img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.cards {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 3px;
+}
+
+.card-img {
+    width: 50px;
+    height: 50px;
+    background-color: var(--vermelho-clarinho);
+    padding: 7px 7px;
+    border-radius: 10px;
+}
+
+.card-img2 {
+    width: 50px;
+    height: 50px;
+    background-color: var(--verde-clarinho);
+    padding: 7px 7px;
+    border-radius: 10px;
+}
+
+.card-info {
+    margin-left: 10px;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    padding: 14px 10px;
+    padding-right: 16px;
+    width: 100%;
+}
+
+.texto {
+    color: var(--azul-cinzento-escuro);
+    font-size: 12px;
+}
+
+.preco {
+    color: var(--vermelho);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.preco2 {
+    color: var(--verde-escuro);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.cabecalho-despesa {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.filtros-despesa {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 40px;
+    padding: 9px 10px;
+    background-color: var(--branco);
+    border: 1px solid var(--cinza-claro);
+    border-radius: 8px;
+    box-sizing: border-box;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.filtro {
+    height: 28px;
+    padding: 0 15px;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 6px;
+    background-color: var(--branco);
+    color: var(--azul-cinzento-escuro);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.filtro:hover {
+    background-color: var(--branco-acinzentado);
+}
+
+.filtro.ativo {
+    background-color: var(--verde-clarinho);
+    border-color: var(--cinza-claro);
+    color: var(--verde-escuro);
+}
+
+.minhas-despesas {
+    width: 100%;
+    padding: 14px 15px 16px;
+    box-sizing: border-box;
+    background-color: var(--branco);
+    border: 1px solid var(--cinza-claro);
+    border-radius: 8px;
+}
+
+.minhas-despesas h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--azul-cinzento-escuro);
+}
+
+.filtros-tabela {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.campo-busca {
+    display: flex;
+    align-items: center;
+    width: 389px;
+    height: 30px;
+    padding: 0 9px;
+    box-sizing: border-box;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 6px;
+    background-color: var(--branco);
+}
+
+.campo-busca input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 11px;
+}
+
+.campo-busca input::placeholder {
+    color: var(--cinza-claro);
+}
+
+.filtro-tabela {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 30px;
+    padding: 0 11px;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 6px;
+    background-color: var(--branco);
+    color: var(--azul-cinzento-escuro);
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.filtro-tabela-ordenar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 30px;
+    padding: 0 10px;
+    padding-left: 30px;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 6px;
+    background-color: var(--branco);
+    color: var(--azul-cinzento-escuro);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.icone-filtro {
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+}
+
+.icone-select {
+    width: 20px;
+    height: 20px;
+}
+
+.filtro-tabela:hover {
+    background-color: var(--branco-acinzentado);
+}
+
+.tabela-despesas {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-despesas thead {
+    background-color: var(--cinza-claro);
+}
+
+.tabela-despesas th {
+    height: 29px;
+    padding: 0 15px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cinza-escuro);
+}
+
+.th-ordenacao {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.setas {
+    width: 9px;
+    height: 15px;
+    display: block;
+}
