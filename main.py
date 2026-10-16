@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
+database = r"D:\Desktop\BOLSO-EM-DIA\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -85,13 +85,13 @@ def cadastrar_usuario():
         return redirect(url_for('pagina_cadastro'))
 
     data_nasc = request.form['data_nasc']
-    telefone = request.form['telefone'].strip()
+    telefone = request.form['telefone'].strip().replace("(","").replace(")","").replace("-","")
 
     if not telefone:
         flash('O campo "Telefone" não pode ficar vazio!', 'error')
         return redirect(url_for('pagina_cadastro'))
 
-    cpf = request.form['cpf'].strip()
+    cpf = request.form['cpf'].strip().replace(".","").replace("-","")
 
     if not cpf:
         flash('O campo "CPF" não pode ficar vazio!', 'error')
@@ -680,8 +680,8 @@ def todas_categorias():
     try:
         usuario = buscar_dados(id_usuario)
 
-        cursor.execute(""" SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE id_categoria in(1,2)
-        union
+        cursor.execute(""" SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1,2)
+        UNION
         SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario, ))
         categorias = cursor.fetchall()
 
@@ -717,12 +717,12 @@ def cadastrar_categoria():
 
     nome_categoria = request.form['nome_categoria'].strip()
     tipo = int(request.form['tipo'])
-    cor = request.form['cor']
+    cor = request.form['cor'].replace("#","")
     icone = request.form['icone']
 
     if not nome_categoria:
         flash('O campo "Nome Categoria" não pode ser vazio!', 'error')
-        return redirect(url_for('cadastrar_categoria'))
+        return redirect(url_for('nova_categoria'))
 
     cursor = con.cursor()
 
@@ -730,7 +730,7 @@ def cadastrar_categoria():
         cursor.execute("""SELECT 1 FROM CATEGORIA WHERE upper(NOME_CATEGORIA) = ? AND ID_USUARIO = ?""", (nome_categoria.upper(), id_usuario))
         if cursor.fetchone():
             flash('Essa categoria já existe!', 'error')
-            return redirect(url_for('cadastrar_categoria'))
+            return redirect(url_for('nova_categoria'))
 
         cursor.execute("""INSERT INTO CATEGORIA (NOME_CATEGORIA, TIPO, COR, ICONE, ID_USUARIO, STATUS) VALUES (?,?,?,?,?,1)""", (nome_categoria, tipo, cor, icone, id_usuario ))
 
@@ -763,7 +763,7 @@ def editar_categoria(id):
         cursor.execute("""SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND ID_CATEGORIA = ?""", (id_usuario, id))
         categoria = cursor.fetchone()
 
-        if not cursor.fetchone():
+        if not categoria:
             flash('Categoria não encontrada!', 'error')
             return redirect(url_for('todas_categorias'))
 
@@ -773,22 +773,27 @@ def editar_categoria(id):
 
         if request.method == 'POST':
             nome_categoria = request.form['nome_categoria'].strip()
+
+            if not nome_categoria:
+                flash('O campo "Nome Categoria" não pode ser vazio!', 'error')
+                return redirect(url_for('editar_categoria', id=id))
+
             tipo = int(request.form['tipo'])
             cor = request.form['cor']
             icone = request.form['icone']
 
-            cursor.execute("""SELECT 1 FROM CATEGORIA WHERE upper(NOME_CATEGORIA) = ?""", (nome_categoria.upper(), ))
+            cursor.execute("""SELECT 1 FROM CATEGORIA WHERE upper(NOME_CATEGORIA) = ? AND ID_USUARIO = ? AND ID_CATEGORIA <> ?""", (nome_categoria.upper(), id_usuario, id))
             if cursor.fetchone():
                 flash('Essa categoria já existe!', 'error')
                 return redirect(url_for('editar_categoria', id=id))
 
-            cursor.execute("""UPDATE CATEGORIA SET NOME_CATEGORIA = ?, TIPO = ?, COR = ?, ICONE = ?""", (nome_categoria, tipo, cor, icone))
+            cursor.execute("""UPDATE CATEGORIA SET NOME_CATEGORIA = ?, TIPO = ?, COR = ?, ICONE = ? WHERE ID_CATEGORIA = ? AND ID_USUARIO = ?""", (nome_categoria, tipo, cor, icone, id, id_usuario))
             con.commit()
             flash('Categoria editado com sucesso!', 'success')
             return redirect(url_for('todas_categorias'))
 
         else:
-            return render_template("editar_categoria", nome=categoria[0], tipo=categoria[1], usuario=usuario)
+            return render_template("editar_categoria.html",categoria=categoria, usuario=usuario)
 
     except Exception as e:
         con.rollback()
@@ -805,7 +810,7 @@ def inativar_categoria(id):
         return redirect(url_for('pagina_login'))
 
     id_usuario = session['id_usuario']
-    ativar = request.form['ativar']
+    ativar = int(request.form['ativar'])
 
     if ativar == 1:
         mensagem = 'ativada'
@@ -815,10 +820,10 @@ def inativar_categoria(id):
     cursor = con.cursor()
 
     try:
-        cursor.execute("""SELECT 1 FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND ID_CATEGORIA = ?""", (id_usuario, id))
+        cursor.execute("""SELECT 1 FROM CATEGORIA WHERE ID_USUARIO = ? AND ID_CATEGORIA = ?""", (id_usuario, id))
         if not cursor.fetchone():
             flash('Categoria não encontrada!', 'error')
-            return redirect(url_for('inativar_categoria'))
+            return redirect(url_for('todas_categorias'))
 
         cursor.execute("""UPDATE CATEGORIA SET STATUS = ? WHERE ID_USUARIO = ? AND ID_CATEGORIA = ?""", (ativar, id_usuario, id))
         con.commit()
@@ -828,7 +833,7 @@ def inativar_categoria(id):
     except Exception as e:
         con.rollback()
         flash(f"Ocorreu um erro: {e}", "error")
-        return redirect(url_for('inativar_categoria'))
+        return redirect(url_for('todas_categorias'))
 
     finally:
         cursor.close()
@@ -860,17 +865,20 @@ def cadastrar_servico_extra():
 
     if not servico_realizado:
         flash('O campo "Serviço Realizado" não pode ser vazio!', 'error')
-        return redirect(url_for('cadastrar_servico_extra'))
+        return redirect(url_for('servico_extra'))
 
     if valor <= 0:
         flash('O campo "Valor Recebido" deve ser maior que zero!', 'error')
-        return redirect(url_for('cadastrar_servico_extra'))
+        return redirect(url_for('servico_extra'))
+
+    if not valor:
+        flash('O campo "Valor Recebido" não pode ser vazio!', 'error')
+        return redirect(url_for('servico_extra'))
 
     cursor = con.cursor()
 
     try:
-        cursor.execute(
-            """INSERT INTO SERVICO_EXTRA (SERVICO_REALIZADO, VALOR, DATA_SERVICO, DESCRICAO, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, 1)""", (servico_realizado, valor, data, descricao, id_usuario))
+        cursor.execute("""INSERT INTO SERVICO_EXTRA (SERVICO_REALIZADO, VALOR, DATA_SERVICO, DESCRICAO, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, 1)""", (servico_realizado, valor, data, descricao, id_usuario))
         con.commit()
         flash('Serviço cadastrado com sucesso!', 'success')
         return redirect(url_for('dashboard'))
@@ -894,20 +902,25 @@ def excluir_servico_extra(id):
     try:
         cursor.execute("""SELECT DATA_SERVICO FROM SERVICO_EXTRA WHERE ID_USUARIO = ? AND ID_SERVICO_EXTRA = ?""", (id_usuario, id, ))
         data_banco = cursor.fetchone()
-        data_atual = datetime.now()
+        data_atual = datetime.now().date()
 
-        if data_banco < data_atual:
+        if not data_banco:
+            flash('Registro não encontrado!', 'error')
+            return redirect(url_for('rendimentos'))
+
+        if data_banco[0] < data_atual:
             flash('Não é possível excluir registros retroativos!', 'error')
             return redirect(url_for('rendimentos'))
 
         cursor.execute("""DELETE FROM SERVICO_EXTRA WHERE ID_USUARIO = ? AND ID_SERVICO_EXTRA = ?""", (id_usuario, id, ))
+        con.commit()
         flash('Registro excluido com sucesso!', 'success')
         return redirect(url_for('rendimentos'))
 
     except Exception as e:
         con.rollback()
         flash(f"Ocorreu um erro: {e}", "error")
-        return redirect(url_for('excluir_servico_extra'))
+        return redirect(url_for('rendimentos'))
 
     finally:
         cursor.close()
@@ -929,11 +942,15 @@ def editar_servico_extra(id):
         cursor.execute("""SELECT SERVICO_REALIZADO, VALOR, DATA_SERVICO, DESCRICAO, ID_USUARIO, STATUS FROM SERVICO_EXTRA WHERE ID_USUARIO = ? AND ID_SERVICO_EXTRA = ?""", (id_usuario, id, ))
         servico = cursor.fetchone()
 
+        if not servico:
+            flash('Serviço extra não encontrado!', 'error')
+            return redirect(url_for('rendimentos'))
+
         if servico[5] == 0:
             flash('Um registro inativado não pode ser editado.', 'error')
             return redirect(url_for('rendimentos'))
 
-        data_atual = datetime.now()
+        data_atual = datetime.now().date()
 
         if servico[2] < data_atual:
             flash('Não é possível editar registros retroativos!', 'error')
@@ -945,13 +962,18 @@ def editar_servico_extra(id):
             data_servico = request.form['data_servico']
             descricao = request.form['descricao'].strip()
 
+            # transforma em AAAA-MM-DD para conferir se não ta sendo alterada para uma data passada
+            if data_servico < data_atual.strftime('%Y-%m-%d'):
+                flash('Não é possível alterar para uma data retroativa!', 'error')
+                return redirect(url_for('editar_servico_extra', id=id))
+
             if not servico_realizado:
                 flash('O campo "Serviço Realizado" não pode ser vazio!', 'error')
-                return redirect(url_for('editar_servico_extra'))
+                return redirect(url_for('editar_servico_extra', id=id))
 
             if valor <= 0:
                 flash('O campo "Valor Recebido" deve ser maior que zero!', 'error')
-                return redirect(url_for('editar_servico_extra'))
+                return redirect(url_for('editar_servico_extra', id=id))
 
             cursor.execute("""UPDATE SERVICO_EXTRA SET SERVICO_REALIZADO = ?, VALOR = ?, DATA_SERVICO = ?, DESCRICAO = ? WHERE ID_USUARIO = ? AND ID_SERVICO_EXTRA = ?""", (servico_realizado, valor, data_servico, descricao, id_usuario, id))
             con.commit()
@@ -964,7 +986,7 @@ def editar_servico_extra(id):
     except Exception as e:
         con.rollback()
         flash(f"Ocorreu um erro: {e}", "error")
-        return redirect(url_for('editar_servico_extra'))
+        return redirect(url_for('editar_servico_extra', id=id))
 
     finally:
         cursor.close()
@@ -976,7 +998,7 @@ def inativar_servico_extra(id):
         return redirect(url_for('pagina_login'))
 
     id_usuario = session['id_usuario']
-    ativar = request.form['ativar']
+    ativar = int(request.form['ativar'])
 
     if ativar == 1:
         mensagem = 'ativado'
@@ -986,6 +1008,10 @@ def inativar_servico_extra(id):
     cursor = con.cursor()
 
     try:
+        cursor.execute("""SELECT 1 FROM SERVICO_EXTRA WHERE ID_USUARIO = ? AND ID_SERVICO_EXTRA = ?""", (id_usuario, id))
+        if not cursor.fetchone():
+            flash('Registro não encontrado!', 'error')
+            return redirect(url_for('rendimentos'))
 
         cursor.execute("""UPDATE SERVICO_EXTRA SET STATUS = ? WHERE ID_USUARIO = ? AND ID_SERVICO_EXTRA = ?""", (ativar, id_usuario, id))
         con.commit()
@@ -1011,7 +1037,7 @@ def dia_trabalhado():
     usuario = buscar_dados(id_usuario)
     return render_template("dia_trabalhado.html", usuario=usuario)
 
-@app.route('/cadastrar_dia_trabalhado')
+@app.route('/cadastrar_dia_trabalhado', methods=['POST'])
 def cadastrar_dia_trabalhado():
     if 'id_usuario' not in session:
         flash('É necessário realizar o login', 'error')
@@ -1020,7 +1046,11 @@ def cadastrar_dia_trabalhado():
     id_usuario = session['id_usuario']
 
     data = request.form['data']
-    pacotes_coletados = request.form['pacotes_coletados']
+    pacotes_coletados = int(request.form['pacotes_coletados'])
+
+    if pacotes_coletados <= 0:
+        flash('A quantidade de pacotes deve ser maior que zero!', 'error')
+        return redirect(url_for('dia_trabalhado'))
 
     cursor = con.cursor()
 
@@ -1046,7 +1076,7 @@ def inativar_dia_trabalhado(id):
         return redirect(url_for('pagina_login'))
 
     id_usuario = session['id_usuario']
-    ativar = request.form['ativar']
+    ativar = int(request.form['ativar'])
 
     if ativar == 1:
         mensagem = 'ativado'
@@ -1056,6 +1086,11 @@ def inativar_dia_trabalhado(id):
     cursor = con.cursor()
 
     try:
+        cursor.execute("""SELECT 1 FROM DIA_TRABALHADO WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""",(id_usuario, id))
+        if not cursor.fetchone():
+            flash('Registro não encontrado!', 'error')
+            return redirect(url_for('rendimentos'))
+
         cursor.execute("""UPDATE DIA_TRABALHADO SET STATUS = ? WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""", (ativar, id_usuario, id))
         con.commit()
         flash(f'Dia trabalhado { mensagem } com sucesso!', 'success')
@@ -1069,7 +1104,7 @@ def inativar_dia_trabalhado(id):
     finally:
         cursor.close()
 
-@app.route('/editar_dia_trabalhado/<int:id>', methods=['POST'])
+@app.route('/editar_dia_trabalhado/<int:id>', methods=['GET','POST'])
 def editar_dia_trabalhado(id):
     if 'id_usuario' not in session:
         flash('É necessário realizar o login', 'error')
@@ -1085,23 +1120,32 @@ def editar_dia_trabalhado(id):
         cursor.execute("""SELECT DATA_TRABALHO, PACOTES_COLETADOS, ID_USUARIO, STATUS FROM DIA_TRABALHADO WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""", (id_usuario, id, ))
         dia_trabalhado = cursor.fetchone()
 
-        if dia_trabalhado[5] == 0:
+        if not dia_trabalhado:
+            flash('Registro não encontrado!', 'error')
+            return redirect(url_for('rendimentos'))
+
+        if dia_trabalhado[3] == 0:
             flash('Um registro inativado não pode ser editado.', 'error')
             return redirect(url_for('rendimentos'))
 
-        data_atual = datetime.now()
+        data_atual = datetime.now().date()
 
-        if dia_trabalhado[2] < data_atual:
+        if dia_trabalhado[0] < data_atual:
             flash('Não é possível editar registros retroativos!', 'error')
             return redirect(url_for('rendimentos'))
 
         if request.method == 'POST':
             data = request.form['data']
-            pacotes_coletados = int(request.form['valor'])
+            pacotes_coletados = int(request.form['pacotes_coletados'])
 
             if pacotes_coletados <= 0:
                 flash('O campo "Pacotes coletados" deve ser maior que zero!', 'error')
-                return redirect(url_for('editar_dia_trabalhado'))
+                return redirect(url_for('editar_dia_trabalhado', id=id))
+
+            # transforma em AAAA-MM-DD para conferir se não ta sendo alterada para uma data passada
+            if data < data_atual.strftime('%Y-%m-%d'):
+                flash('Não é possível alterar para uma data retroativa!', 'error')
+                return redirect(url_for('editar_dia_trabalhado', id=id))
 
             cursor.execute("""UPDATE DIA_TRABALHADO SET DATA_TRABALHO = ?, PACOTES_COLETADOS = ? WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""", (data, pacotes_coletados, id_usuario, id))
             con.commit()
@@ -1109,12 +1153,12 @@ def editar_dia_trabalhado(id):
             return redirect(url_for('rendimentos'))
 
         else:
-            return render_template('editar_dia_trabalhado.html', dia_trabalhado=dia_trabalhado, usuario=usuario)
+            return render_template('editar_dia_trabalhado.html', dia_trabalhado=dia_trabalhado, usuario=usuario, id=id)
 
     except Exception as e:
         con.rollback()
         flash(f"Ocorreu um erro: {e}", "error")
-        return redirect(url_for('editar_dia_trabalhado'))
+        return redirect(url_for('editar_dia_trabalhado', id=id))
 
     finally:
         cursor.close()
@@ -1129,20 +1173,26 @@ def excluir_dia_trabalhado(id):
     try:
         cursor.execute("""SELECT DATA_TRABALHO FROM DIA_TRABALHADO WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""", (id_usuario, id, ))
         data_banco = cursor.fetchone()
-        data_atual = datetime.now()
 
-        if data_banco < data_atual:
+        if not data_banco:
+            flash('Registro não encontrado!', 'error')
+            return redirect(url_for('rendimentos'))
+
+        data_atual = datetime.now().date()
+
+        if data_banco[0] < data_atual:
             flash('Não é possível excluir registros retroativos!', 'error')
             return redirect(url_for('rendimentos'))
 
         cursor.execute("""DELETE FROM DIA_TRABALHADO WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""", (id_usuario, id, ))
+        con.commit()
         flash('Registro excluido com sucesso!', 'success')
         return redirect(url_for('rendimentos'))
 
     except Exception as e:
         con.rollback()
         flash(f"Ocorreu um erro: {e}", "error")
-        return redirect(url_for('excluir_dia_trabalhado'))
+        return redirect(url_for('rendimentos'))
 
     finally:
         cursor.close()
@@ -1161,7 +1211,10 @@ def movimentacao():
     try:
         usuario = buscar_dados(id_usuario)
 
-        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 ORDER BY NOME_CATEGORIA""", (id_usuario,))
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1, 2) AND STATUS = 1
+            UNION
+            SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1
+            ORDER BY NOME_CATEGORIA""", (id_usuario,))
         categorias = cursor.fetchall()
 
         return render_template('movimentacao.html', usuario=usuario, categorias=categorias)
@@ -1197,9 +1250,29 @@ def cadastrar_movimentacao():
         flash('Informe a data da movimentação!', 'error')
         return redirect(url_for('movimentacao'))
 
+    if not valor:
+        flash('O campo "Valor" não pode ser vazio!', 'error')
+        return redirect(url_for('movimentacao'))
+
+    if not descricao:
+        flash('Informe a descrição da movimentação!', 'error')
+        return redirect(url_for('movimentacao'))
+
+    if tipo not in [1, 2]:
+        flash('Tipo de movimentação inválido!', 'error')
+        return redirect(url_for('movimentacao'))
+
     cursor = con.cursor()
 
     try:
+        cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND STATUS = 1 AND ID_CATEGORIA IN(1, 2)
+            UNION
+            SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND STATUS = 1""", (categoria, categoria, id_usuario))
+
+        if not cursor.fetchone():
+            flash('Categoria inválida!', 'error')
+            return redirect(url_for('movimentacao'))
+
         cursor.execute("""INSERT INTO MOVIMENTACAO (VALOR, TIPO, DATA_MOVIMENTACAO, DESCRICAO, ID_CATEGORIA, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, ?, 1)""", (valor, tipo, data, descricao, categoria, id_usuario))
         con.commit()
         flash('Movimentação cadastrada com sucesso!', 'success')
@@ -1213,6 +1286,99 @@ def cadastrar_movimentacao():
     finally:
         cursor.close()
 
+
+
+@app.route('/inativar_movimentacao/<int:id>', methods=['POST'])
+def inativar_movimentacao(id):
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT TIPO, DATA_MOVIMENTACAO FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ? AND STATUS = 1""", (id_usuario, id))
+
+        movimentacao = cursor.fetchone()
+
+        if not movimentacao:
+            flash('Movimentação não encontrada!', 'error')
+            return redirect(url_for('dashboard'))
+
+        tipo = movimentacao[0]
+        data_atual = datetime.now().date()
+
+        if movimentacao[1] >= data_atual:
+            flash('Só é possível inativar movimentações de datas passadas!', 'error')
+
+            if tipo == 1:
+                return redirect(url_for('despesas'))
+            else:
+                return redirect(url_for('rendimentos'))
+
+        cursor.execute("""UPDATE MOVIMENTACAO SET STATUS = 0 WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ?""", (id_usuario, id))
+        con.commit()
+        flash('Movimentação inativada com sucesso!', 'success')
+
+        if tipo == 1:
+            return redirect(url_for('despesas'))
+        else:
+            return redirect(url_for('rendimentos'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
+
+
+@app.route('/excluir_movimentacao/<int:id>', methods=['POST'])
+def excluir_movimentacao(id):
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT TIPO, DATA_MOVIMENTACAO FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ? AND STATUS = 1""", (id_usuario, id))
+        movimentacao = cursor.fetchone()
+
+        if not movimentacao:
+            flash('Movimentação não encontrada!', 'error')
+            return redirect(url_for('dashboard'))
+
+        tipo = movimentacao[0]
+        data_atual = datetime.now().date()
+
+        if movimentacao[1] < data_atual:
+            flash(
+                'Não é possível excluir movimentações de datas passadas!','error')
+            if tipo == 2:
+                return redirect(url_for('rendimentos'))
+            else:
+                return redirect(url_for('despesas'))
+
+        cursor.execute("""DELETE FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ?""", (id_usuario, id))
+        con.commit()
+        flash('Movimentação excluída com sucesso!', 'success')
+
+        if tipo == 2:
+            return redirect(url_for('rendimentos'))
+        else:
+            return redirect(url_for('despesas'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
 
 if __name__ == "__main__":
     app.run(debug=True)
