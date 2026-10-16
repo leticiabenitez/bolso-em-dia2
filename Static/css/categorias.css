@@ -181,6 +181,180 @@ body {
     text-decoration: none;
 }
 
+.item-categoria {
+    width: 100%;
+    min-height: 82px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 10px;
+}
+
+.informacoes-categoria {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icone-item-categoria {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+}
+
+.icone-item-categoria img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.dados-categoria {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.nome-tipo-categoria {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.nome-tipo-categoria strong {
+    font-size: 15px;
+}
+
+.tipo-categoria {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tipo-categoria.receita {
+    background-color: var(--verde-clarinho);
+    color: var(--verde-escuro);
+}
+
+.tipo-categoria.despesa {
+    background-color: var(--vermelho-clarinho);
+    color: var(--vermelho);
+}
+
+.status-categoria {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-categoria.ativo {
+    color: var(--verde-escuro);
+}
+
+.status-categoria.inativo {
+    color: var(--vermelho);
+}
+
+.acoes-categoria {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.acoes-categoria form {
+    margin: 0;
+}
+
+.editar-categoria,
+.inativar-categoria,
+.ativar-categoria {
+    height: 38px;
+    padding: 0 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.editar-categoria {
+    background-color: var(--branco);
+    color: var(--azul-cinzento-escuro);
+    border: 1px solid var(--cinza);
+}
+
+.editar-categoria img {
+    width: 17px;
+    height: 17px;
+}
+
+.editar-categoria:hover {
+    text-decoration: none;
+}
+
+.inativar-categoria {
+    background-color: var(--branco);
+    color: var(--vermelho);
+    border: 1px solid var(--vermelho);
+}
+
+.ativar-categoria {
+    background-color: var(--verde-escuro);
+    color: var(--branco);
+    border: 1px solid var(--verde-escuro);
+}
+
+.categoria-padrao {
+    padding: 6px 10px;
+    background-color: var(--cinza-claro);
+    color: var(--cinza-escuro);
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.filtros-categorias {
+    width: 100%;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+}
+
+.filtro-categoria {
+    width: 33.33%;
+}
+
+.filtro-categoria label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--azul-cinzento-escuro);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.filtro-categoria input,
+.filtro-categoria select {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    background-color: var(--branco);
+    border: 1px solid var(--cinza-claro);
+    border-radius: 8px;
+    color: var(--azul-cinzento-escuro);
+    font-size: 13px;
+    outline: none;
+}
+
 /* TABLET */
 
 @media (min-width: 767px) and (max-width: 1023px) {

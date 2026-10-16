@@ -180,6 +180,12 @@ body {
     z-index: 5;
 }
 
+.grade-icones img {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+}
+
 .grade-icones label {
     width: 100%;
     height: 44px;
@@ -232,13 +238,8 @@ body {
     color: var(--azul-cinzento-escuro);
 }
 
-.grade-icones input:checked + .icone-svg {
-    color: var(--verde-escuro);
-}
-
-.grade-icones input:checked + .icone-svg {
+.grade-icones input:checked + img {
     padding: 3px;
-    color: var(--verde-escuro);
     background-color: var(--verde-clarinho);
     border: 2px solid var(--verde-escuro);
     border-radius: 6px;
