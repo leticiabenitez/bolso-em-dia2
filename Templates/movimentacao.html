@@ -140,11 +140,17 @@
                             <option value="">Selecione</option>
 
                             {% for categoria in categorias %}
-                                <option value="{{ categoria[0] }}" data-tipo="{{ categoria[2] }}">{{ categoria[1] }}</option>
+                                <option value="{{ categoria[0] }}" data-tipo="{{ categoria[2] }}">
+                                    {{ categoria[1] }}
+                                </option>
                             {% endfor %}
 
                             <option value="nova">Adicionar Categoria</option>
                         </select>
+
+                        <a href="{{ url_for('todas_categorias') }}" class="ver-categorias">
+                            Ver todas as categorias
+                        </a>
                     </div>
                 </div>
 

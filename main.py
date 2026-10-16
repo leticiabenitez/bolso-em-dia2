@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"D:\Desktop\BOLSO-EM-DIA\BANCO.FDB"
+database = r"C:\Users\Borella\Downloads\bolso-em-dia-main\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -1371,6 +1371,89 @@ def excluir_movimentacao(id):
             return redirect(url_for('rendimentos'))
         else:
             return redirect(url_for('despesas'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
+
+@app.route('/editar_movimentacao/<int:id>', methods=['GET', 'POST'])
+def editar_movimentacao(id):
+
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    cursor = con.cursor()
+
+    try:
+        usuario = buscar_dados(id_usuario)
+
+        cursor.execute("""SELECT VALOR, TIPO, DATA_MOVIMENTACAO, DESCRICAO, ID_CATEGORIA, STATUS FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ?""", (id_usuario, id))
+        movimentacao = cursor.fetchone()
+
+        if not movimentacao:
+            flash('Movimentação não encontrada!', 'error')
+            return redirect(url_for('dashboard'))
+
+        if movimentacao[5] == 0:
+            flash('Uma movimentação inativada não pode ser editada.', 'error')
+            return redirect(url_for('dashboard'))
+
+        data_atual = str(datetime.now().date())
+
+        if str(movimentacao[2]) < data_atual:
+            flash('Não é possível editar movimentações de datas passadas!', 'error')
+            return redirect(url_for('dashboard'))
+
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN (1, 2) AND STATUS = 1 UNION SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 ORDER BY NOME_CATEGORIA""", (id_usuario,))
+        categorias = cursor.fetchall()
+
+        if request.method == 'POST':
+            valor = float(request.form['valor'])
+            tipo = int(request.form['tipo'])
+            data = request.form['data']
+            categoria = int(request.form['categoria'])
+            descricao = request.form['descricao'].strip()
+
+            if valor <= 0:
+                flash('O valor deve ser maior que zero!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            if not data:
+                flash('Informe a data da movimentação!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            if not descricao:
+                flash('Informe a descrição da movimentação!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            if tipo not in [1, 2]:
+                flash('Tipo de movimentação inválido!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            if data < data_atual:
+                flash('Não é possível alterar para uma data passada!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND TIPO = ? AND STATUS = 1 AND ID_CATEGORIA IN (1, 2) UNION SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND TIPO = ? AND STATUS = 1""", (categoria, tipo, categoria, id_usuario, tipo))
+
+            if not cursor.fetchone():
+                flash('Categoria inválida para esse tipo de movimentação!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            cursor.execute("""UPDATE MOVIMENTACAO SET VALOR = ?, TIPO = ?, DATA_MOVIMENTACAO = ?, DESCRICAO = ?, ID_CATEGORIA = ? WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ?""", (valor, tipo, data, descricao, categoria, id_usuario, id))
+
+            con.commit()
+            flash('Movimentação editada com sucesso!', 'success')
+            return redirect(url_for('dashboard'))
+
+        else:
+            return render_template('editar_movimentacao.html', movimentacao=movimentacao, categorias=categorias, usuario=usuario, id=id)
 
     except Exception as e:
         con.rollback()

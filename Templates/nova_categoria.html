@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Categoria - Bolso em Dia</title>
+    <link rel="icon" href="{{ url_for('static', filename='uploads/logo-escuro.png') }}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nova_categoria.css') }}">
+</head>
+<body class="pagina-sistema">
+
+    <aside class="menu-lateral">
+        <a href="{{ url_for('movimentacao') }}" class="seta-voltar">‹</a>
+        <img class="logo-perfil" src="{{ url_for('static', filename='uploads/logo-horizontal.png') }}" alt="Bolso em Dia">
+
+        <nav class="navegacao-perfil">
+            <a href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='uploads/perfil-dashboard.png') }}" alt="">
+                <span>Dashboard</span>
+            </a>
+
+            <a href="#">
+                <img src="{{ url_for('static', filename='uploads/perfil-rendimentos.png') }}" alt="">
+                <span>Rendimentos</span>
+            </a>
+
+            <a href="#">
+                <img src="{{ url_for('static', filename='uploads/perfil-despesas.png') }}" alt="">
+                <span>Despesas</span>
+            </a>
+
+            <a href="#">
+                <img src="{{ url_for('static', filename='uploads/perfil-dia-trabalhado.png') }}" alt="">
+                <span>Dia Trabalhado</span>
+            </a>
+
+            <a href="{{ url_for('servico_extra') }}">
+                <img src="{{ url_for('static', filename='uploads/perfil-servico-extra.png') }}" alt="">
+                <span>Serviço Extra</span>
+            </a>
+
+            <a href="{{ url_for('todas_categorias') }}" class="pagina-ativa">
+                <img src="{{ url_for('static', filename='uploads/tag.png') }}" alt="">
+                <span>Categorias</span>
+            </a>
+
+            <a href="#">
+                <img src="{{ url_for('static', filename='uploads/perfil-relatorios.png') }}" alt="">
+                <span>Relatórios</span>
+            </a>
+
+            <a href="#">
+                <img src="{{ url_for('static', filename='uploads/perfil-historico.png') }}" alt="">
+                <span>Histórico Semanal</span>
+            </a>
+        </nav>
+
+        <a class="sair-perfil" href="{{ url_for('logout') }}">
+            <div class="sair-conteudo">
+                <img src="{{ url_for('static', filename='uploads/perfil-sair.png') }}" alt="">
+                <span>Sair</span>
+            </div>
+        </a>
+    </aside>
+
+    <main class="conteudo-sistema">
+        <header class="topo-perfil">
+            <div></div>
+
+            <a href="{{ url_for('perfil') }}" class="usuario-logado">
+                {% if usuario[8] %}
+                    <img src="{{ url_for('static', filename='Uploads/' + usuario[8]) }}" alt="Foto do usuário">
+                {% else %}
+                    <img src="{{ url_for('static', filename='Uploads/perfil-usuario-topo.png') }}" alt="Foto padrão">
+                {% endif %}
+                <div>
+                    <strong>{{ usuario[0].split()[:2] | join(' ') }}</strong>
+                    <span>{{ usuario[1] }}</span>
+                </div>
+            </a>
+        </header>
+
+        <div class="linha-topo"></div>
+
+        <div class="caminho-categoria">
+            <a href="{{ url_for('movimentacao') }}">Cadastrar Movimentação</a>
+            <span>›</span>
+            <strong>Adicionar Categoria</strong>
+        </div>
+
+        <section class="titulo-categoria">
+            <h1>Adicionar Categoria</h1>
+        </section>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% for categoria, mensagem in mensagens %}
+                <p class="mensagem {{ categoria }}">{{ mensagem }}</p>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="card-categoria">
+            <div class="cabecalho-categoria">
+                <div class="icone-categoria">
+                    <img src="{{ url_for('static', filename='uploads/tag.png') }}" alt="">
+                </div>
+                <div>
+                    <h2>Adicionar Categoria</h2>
+                    <p>Preencha todos os dados necessários</p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('cadastrar_categoria') }}" method="POST">
+                <div class="linha-categoria">
+
+                    <div class="grupo-categoria nome-categoria">
+                        <label>Nome da Categoria <span>*</span></label>
+                        <input type="text" name="nome_categoria" placeholder="Ex.: Academia" required>
+                    </div>
+
+                    <div class="grupo-categoria tipo-categoria">
+                        <label>Tipo <span>*</span></label>
+                        <select name="tipo" required>
+                            <option value="">Selecione</option>
+                            <option value="1">Despesa</option>
+                            <option value="2">Receita</option>
+                        </select>
+                    </div>
+
+                    <div class="grupo-categoria cor-categoria">
+                        <label>Cor</label>
+                        <input type="color" name="cor" value="#FFD400">
+                    </div>
+
+                    <div class="grupo-categoria icone-escolha">
+                        <label>Ícone <span>*</span></label>
+
+                        <details class="seletor-icone">
+                            <summary>Selecione</summary>
+
+                            <div class="grade-icones">
+                                <label>
+                                    <input type="radio" name="icone" value="alert.png" required>
+                                    <img src="{{ url_for('static', filename='uploads/alert.png') }}" alt="Alerta">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="award.png">
+                                    <img src="{{ url_for('static', filename='uploads/award.png') }}" alt="Prêmio">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="book.png">
+                                    <img src="{{ url_for('static', filename='uploads/book.png') }}" alt="Livro">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="coffee.png">
+                                    <img src="{{ url_for('static', filename='uploads/coffee.png') }}" alt="Café">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="gift.png">
+                                    <img src="{{ url_for('static', filename='uploads/gift.png') }}" alt="Presente">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="heart.png">
+                                    <img src="{{ url_for('static', filename='uploads/heart.png') }}" alt="Coração">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="home.png">
+                                    <img src="{{ url_for('static', filename='uploads/home.png') }}" alt="Casa">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="map pin.png">
+                                    <img src="{{ url_for('static', filename='uploads/map pin.png') }}" alt="Localização">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="monitor.png">
+                                    <img src="{{ url_for('static', filename='uploads/monitor.png') }}" alt="Monitor">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="pacote.png">
+                                    <img src="{{ url_for('static', filename='uploads/pacote.png') }}" alt="Pacote">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="printer.png">
+                                    <img src="{{ url_for('static', filename='uploads/printer.png') }}" alt="Impressora">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="settings.png">
+                                    <img src="{{ url_for('static', filename='uploads/settings.png') }}" alt="Configurações">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="bag.png">
+                                    <img src="{{ url_for('static', filename='uploads/bag.png') }}" alt="Bolsa">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="cart.png">
+                                    <img src="{{ url_for('static', filename='uploads/cart.png') }}" alt="Carrinho">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="smartphone.png">
+                                    <img src="{{ url_for('static', filename='uploads/smartphone.png') }}" alt="Celular">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="sorriso.png">
+                                    <img src="{{ url_for('static', filename='uploads/sorriso.png') }}" alt="Sorriso">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="star.png">
+                                    <img src="{{ url_for('static', filename='uploads/star.png') }}" alt="Estrela">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="tool.png">
+                                    <img src="{{ url_for('static', filename='uploads/tool.png') }}" alt="Ferramenta">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="truck.png">
+                                    <img src="{{ url_for('static', filename='uploads/truck.png') }}" alt="Caminhão">
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="icone" value="relogio.png">
+                                    <img src="{{ url_for('static', filename='uploads/relogio.png') }}" alt="Relógio">
+                                </label>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="botoes-categoria">
+                    <a href="{{ url_for('movimentacao') }}" class="cancelar-categoria">Cancelar</a>
+                    <button type="submit" class="salvar-categoria">Salvar</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+</body>
+</html>
