@@ -1,9 +1,0 @@
--- TIPO:
--- Despesa: 1
--- Receita: 2
-
-INSERT INTO CATEGORIA (NOME_CATEGORIA, TIPO)
-VALUES('Serviço Extra', 2)
-
-INSERT INTO CATEGORIA (NOME_CATEGORIA, TIPO)
-VALUES('Serviço Extra', 2)
