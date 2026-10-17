@@ -20,12 +20,12 @@
                 <span>Dashboard</span>
             </a>
 
-            <a href="#" class="pagina-ativa">
+            <a href="{{ url_for('rendimentos') }}" class="pagina-ativa">
                 <img src="{{ url_for('static', filename='uploads/perfil-rendimentos.png') }}" alt="">
                 <span>Rendimentos</span>
             </a>
 
-            <a href="#">
+            <a href="{{ url_for('despesas') }}">
                 <img src="{{ url_for('static', filename='uploads/perfil-despesas.png') }}" alt="">
                 <span>Despesas</span>
             </a>
@@ -170,24 +170,77 @@
                     <tbody id="tabela-rendimentos">
                         {% for rendimento in rendimentos|default([]) %}
                             <tr>
-                                <td>{{ rendimento[1] }}</td>
-                                <td>{{ rendimento[2] }}</td>
-                                <td>{{ rendimento[3] }}</td>
-                                <td class="valor-rendimento">{{ "R$ %.2f"|format(rendimento[4]) }}</td>
+                                <td>{{ rendimento.data.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ rendimento.categoria }}</td>
+                                <td>{{ rendimento.descricao }}</td>
+                                <td class="valor-rendimento">
+                                    {{ "R$ %.2f"|format(rendimento.valor) }}
+                                </td>
                                 <td>
                                     <div class="acoes-rendimento">
-                                        {% if rendimento[6] == 'movimentacao' %}
-                                            <a href="{{ url_for('editar_movimentacao', id=rendimento[0]) }}">
-                                                <img src="{{ url_for('static', filename='uploads/edit.png') }}" alt="Editar">
+                                        {% if rendimento.tipo == 'movimentacao' %}
+                                            <a href="{{ url_for('editar_movimentacao', id=rendimento.id) }}"
+                                               title="Editar">
+                                                <img src="{{ url_for('static', filename='uploads/edit.png') }}"
+                                                     alt="Editar">
                                             </a>
-                                        {% elif rendimento[6] == 'servico_extra' %}
-                                            <a href="{{ url_for('editar_servico_extra', id=rendimento[0]) }}">
-                                                <img src="{{ url_for('static', filename='uploads/edit.png') }}" alt="Editar">
+
+                                            <form action="{{ url_for('inativar_movimentacao', id=rendimento.id) }}"
+                                                  method="POST">
+                                                <button type="submit" title="Inativar">
+                                                    Inativar
+                                                </button>
+                                            </form>
+
+                                            <form action="{{ url_for('excluir_movimentacao', id=rendimento.id) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Deseja realmente excluir esta receita?')">
+                                                <button type="submit" title="Excluir">
+                                                    Excluir
+                                                </button>
+                                            </form>
+
+                                        {% elif rendimento.tipo == 'servico_extra' %}
+                                            <a href="{{ url_for('editar_servico_extra', id=rendimento.id) }}"
+                                               title="Editar">
+                                                <img src="{{ url_for('static', filename='uploads/edit.png') }}"
+                                                     alt="Editar">
                                             </a>
-                                        {% elif rendimento[6] == 'dia_trabalhado' %}
-                                            <a href="{{ url_for('editar_dia_trabalhado', id=rendimento[0]) }}">
-                                                <img src="{{ url_for('static', filename='uploads/edit.png') }}" alt="Editar">
+
+                                            <form action="{{ url_for('inativar_servico_extra', id=rendimento.id) }}"
+                                                  method="POST">
+                                                <input type="hidden" name="ativar" value="0">
+                                                <button type="submit">Inativar</button>
+                                            </form>
+
+                                            <form action="{{ url_for('excluir_servico_extra', id=rendimento.id) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Deseja realmente excluir este serviço extra?')">
+                                                <button type="submit" title="Excluir">
+                                                    Excluir
+                                                </button>
+                                            </form>
+
+                                        {% elif rendimento.tipo == 'dia_trabalhado' %}
+                                            <a href="{{ url_for('editar_dia_trabalhado', id=rendimento.id) }}"
+                                               title="Editar">
+                                                <img src="{{ url_for('static', filename='uploads/edit.png') }}"
+                                                     alt="Editar">
                                             </a>
+
+                                            <form action="{{ url_for('inativar_dia_trabalhado', id=rendimento.id) }}"
+                                                  method="POST">
+                                                <input type="hidden" name="ativar" value="0">
+                                                <button type="submit">Inativar</button>
+                                            </form>
+
+                                            <form action="{{ url_for('excluir_dia_trabalhado', id=rendimento.id) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Deseja realmente excluir este dia trabalhado?')">
+                                                <button type="submit" title="Excluir">
+                                                    Excluir
+                                                </button>
+                                            </form>
                                         {% endif %}
                                     </div>
                                 </td>

@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
+database = r"D:\Desktop\BOLSO-EM-DIA\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -58,9 +58,14 @@ def validar_senha(senha):
 
 def buscar_dados(id_usuario):
     cursor = con.cursor()
-    cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, SENHA, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""",(id_usuario,))
-    usuario = cursor.fetchone()
-    return usuario
+
+    try:
+        cursor.execute("""SELECT NOME_COMPLETO, EMAIL, DATA_NASCIMENTO, TELEFONE, CPF, SENHA, VALOR_DIARIA, ADICIONAL, MIN_PACOTES, FOTO_PERFIL FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
+        usuario = cursor.fetchone()
+        return usuario
+
+    finally:
+        cursor.close()
 
 @app.route('/')
 def index():
@@ -306,7 +311,7 @@ def dashboard():
         ganhos_mensais = [0] * 12
         despesas_mensais = [0] * 12
 
-        cursor.execute("""SELECT DATA_TRABALHO, PACOTES_COLETADOS FROM DIA_TRABALHADO WHERE ID_USUARIO = ?""", (id_usuario,))
+        cursor.execute("""SELECT DATA_TRABALHO, PACOTES_COLETADOS FROM DIA_TRABALHADO WHERE ID_USUARIO = ? AND STATUS = 1""", (id_usuario,))
         dias_trabalhados = cursor.fetchall()
 
         for dia in dias_trabalhados:
@@ -317,48 +322,11 @@ def dashboard():
                 dias_trabalhados_ano += 1
                 pacotes_ano += pacotes
 
-                ganho_dia = valor_diaria
-
-                if pacotes > min_pacotes:
-                    pacotes_extras = pacotes - min_pacotes
-                    ganho_dia += pacotes_extras * adicional
-
-                ganho_ano += ganho_dia
-
-                mes = data_trabalho.month - 1
-                ganhos_mensais[mes] += ganho_dia
-
             elif data_trabalho.year == ano_anterior:
                 dias_trabalhados_anterior += 1
                 pacotes_anterior += pacotes
 
-                ganho_dia = valor_diaria
-
-                if pacotes > min_pacotes:
-                    pacotes_extras = pacotes - min_pacotes
-                    ganho_dia += pacotes_extras * adicional
-
-                ganho_anterior += ganho_dia
-
-
-        cursor.execute("""SELECT DATA_SERVICO, VALOR FROM SERVICO_EXTRA WHERE ID_USUARIO = ?""", (id_usuario,))
-        servicos_extras = cursor.fetchall()
-
-        for servico in servicos_extras:
-            data_servico = servico[0]
-            valor_servico = float(servico[1] or 0)
-
-            if data_servico.year == ano_atual:
-                ganho_ano += valor_servico
-
-                mes = data_servico.month - 1
-                ganhos_mensais[mes] += valor_servico
-
-            elif data_servico.year == ano_anterior:
-                ganho_anterior += valor_servico
-
-
-        cursor.execute("""SELECT DATA_MOVIMENTACAO, VALOR, TIPO FROM MOVIMENTACAO WHERE ID_USUARIO = ?""", (id_usuario,))
+        cursor.execute("""SELECT DATA_MOVIMENTACAO, VALOR, TIPO FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND STATUS = 1""", (id_usuario,))
         movimentacoes = cursor.fetchall()
 
         for movimentacao in movimentacoes:
@@ -678,9 +646,9 @@ def todas_categorias():
     try:
         usuario = buscar_dados(id_usuario)
 
-        cursor.execute(""" SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1,2)
+        cursor.execute(""" SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN(1,2)
         UNION
-        SELECT NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario, ))
+        SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario, ))
         categorias = cursor.fetchall()
 
         return render_template("categorias.html", categoria=categorias, usuario=usuario)
@@ -1062,6 +1030,12 @@ def cadastrar_dia_trabalhado():
         flash('A quantidade de pacotes deve ser maior que zero!', 'error')
         return redirect(url_for('dia_trabalhado'))
 
+    data_atual = datetime.now().date()
+
+    if data < data_atual.strftime('%Y-%m-%d'):
+        flash('Não é possível cadastrar um dia trabalhado com data retroativa!', 'error')
+        return redirect(url_for('dia_trabalhado'))
+
     cursor = con.cursor()
 
     try:
@@ -1187,7 +1161,7 @@ def editar_dia_trabalhado(id):
     except Exception as e:
         con.rollback()
         flash(f"Ocorreu um erro: {e}", "error")
-        return redirect(url_for('editar_dia_trabalhado', id=id))
+        return redirect(url_for('rendimentos'))
 
     finally:
         cursor.close()
@@ -1488,6 +1462,141 @@ def editar_movimentacao(id):
     finally:
         cursor.close()
 
+
+
+@app.route('/despesas')
+def despesas():
+
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    cursor = con.cursor()
+
+    try:
+        usuario = buscar_dados(id_usuario)
+
+        cursor.execute("""SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO, C.NOME_CATEGORIA, M.DESCRICAO, M.VALOR, M.STATUS
+            FROM MOVIMENTACAO M
+            LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
+            WHERE M.ID_USUARIO = ? AND M.TIPO = 1 AND M.STATUS = 1
+            ORDER BY M.DATA_MOVIMENTACAO DESC""", (id_usuario,))
+        despesas = cursor.fetchall()
+
+        cursor.execute("""SELECT cast(COALESCE(SUM(VALOR), 0) as double precision) FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND TIPO = 1 AND STATUS = 1""", (id_usuario,))
+        total_despesas = cursor.fetchone()[0]
+
+        cursor.execute("""SELECT cast(COALESCE(SUM(VALOR), 0) as double precision) FROM MOVIMENTACAO 
+            WHERE ID_USUARIO = ? AND TIPO = 1 AND STATUS = 1 
+            AND EXTRACT(MONTH FROM DATA_MOVIMENTACAO) = ? AND EXTRACT(YEAR FROM DATA_MOVIMENTACAO) = ?""", (id_usuario, datetime.now().month, datetime.now().year))
+        despesas_mes = cursor.fetchone()[0]
+
+        cursor.execute("""SELECT COUNT(*) FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND TIPO = 1 AND STATUS = 1""", (id_usuario,))
+        quantidade_despesas = cursor.fetchone()[0]
+
+        return render_template(
+            'despesas.html',
+            usuario=usuario,
+            despesas=despesas,
+            total_despesas=total_despesas,
+            despesas_mes=despesas_mes,
+            quantidade_despesas=quantidade_despesas
+        )
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
+
+
+@app.route('/rendimentos')
+def rendimentos():
+
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    cursor = con.cursor()
+
+    try:
+        usuario = buscar_dados(id_usuario)
+        rendimentos = []
+
+        # Receitas
+        cursor.execute("""SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO,
+            COALESCE(C.NOME_CATEGORIA, 'Receita'), M.DESCRICAO, M.VALOR
+            FROM MOVIMENTACAO M
+            LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
+            WHERE M.ID_USUARIO = ? AND M.TIPO = 2 AND M.STATUS = 1 AND (C.NOME_CATEGORIA IS NULL OR C.NOME_CATEGORIA <> 'Dia Trabalhado')""",
+            (id_usuario,))
+
+        for r in cursor.fetchall():
+            rendimentos.append({
+                'id': r[0],
+                'data': r[1],
+                'categoria': r[2],
+                'descricao': r[3],
+                'valor': r[4],
+                'tipo': 'movimentacao'
+            })
+
+        # Dias trabalhados
+        cursor.execute("""SELECT ID_DIA_TRABALHADO, DATA_TRABALHO,
+            VALOR_TOTAL
+            FROM DIA_TRABALHADO
+            WHERE ID_USUARIO = ? AND STATUS = 1""",
+            (id_usuario,))
+
+        for d in cursor.fetchall():
+            rendimentos.append({
+                'id': d[0],
+                'data': d[1],
+                'categoria': 'Dia Trabalhado',
+                'descricao': 'Receita cadastrada pelo Dia Trabalhado',
+                'valor': d[2],
+                'tipo': 'dia_trabalhado'
+            })
+
+        # Serviços extras
+        cursor.execute("""SELECT ID_SERVICO_EXTRA, DATA_SERVICO,
+            SERVICO_REALIZADO, VALOR
+            FROM SERVICO_EXTRA
+            WHERE ID_USUARIO = ? AND STATUS = 1""",
+            (id_usuario,))
+
+        for s in cursor.fetchall():
+            rendimentos.append({
+                'id': s[0],
+                'data': s[1],
+                'categoria': 'Serviço Extra',
+                'descricao': s[2],
+                'valor': s[3],
+                'tipo': 'servico_extra'
+            })
+
+        rendimentos.sort(
+            key=lambda r: r['data'],
+            reverse=True
+        )
+
+        return render_template(
+            'rendimentos.html',
+            usuario=usuario,
+            rendimentos=rendimentos
+        )
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
 
 
 

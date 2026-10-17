@@ -20,12 +20,12 @@
                 <span>Dashboard</span>
             </a>
 
-            <a href="#">
+            <a href="{{ url_for('rendimentos') }}">
                 <img src="{{ url_for('static', filename='uploads/perfil-rendimentos.png') }}" alt="">
                 <span>Rendimentos</span>
             </a>
 
-            <a href="#" class="pagina-ativa">
+            <a href="{{ url_for('despesas') }}" class="pagina-ativa">
                 <img src="{{ url_for('static', filename='uploads/perfil-despesas.png') }}" alt="">
                 <span>Despesas</span>
             </a>
@@ -205,6 +205,14 @@
                                                 <input type="hidden" name="ativar" value="1">
                                                 <button type="submit">Ativar</button>
                                             {% endif %}
+                                        </form>
+
+                                        <form action="{{ url_for('excluir_movimentacao', id=despesa[0]) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Deseja realmente excluir esta despesa?')">
+                                            <button type="submit" title="Excluir">
+                                                Excluir
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
