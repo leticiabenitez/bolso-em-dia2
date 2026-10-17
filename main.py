@@ -1564,7 +1564,7 @@ def rendimentos():
 
         # Serviços extras
         cursor.execute("""SELECT ID_SERVICO_EXTRA, DATA_SERVICO,
-            SERVICO_REALIZADO, VALOR
+            DESCRICAO, VALOR
             FROM SERVICO_EXTRA
             WHERE ID_USUARIO = ? AND STATUS = 1""",
             (id_usuario,))
