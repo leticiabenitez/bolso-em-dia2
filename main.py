@@ -1260,6 +1260,12 @@ def cadastrar_movimentacao():
         flash('Tipo de movimentação inválido!', 'error')
         return redirect(url_for('movimentacao'))
 
+    data_atual = datetime.now().date()
+
+    if data < data_atual.strftime('%Y-%m-%d'):
+        flash('Não é possível cadastrar um dia trabalhado com data retroativa!', 'error')
+        return redirect(url_for('movimentacao'))
+
     cursor = con.cursor()
 
     try:
@@ -1409,14 +1415,25 @@ def editar_movimentacao(id):
             flash('Não é possível editar movimentações de datas passadas!', 'error')
             return redirect(url_for('dashboard'))
 
-        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN (1, 2) AND STATUS = 1 UNION SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 ORDER BY NOME_CATEGORIA""", (id_usuario,))
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN (1, 2) AND STATUS = 1 UNION SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 ORDER BY 2""", (id_usuario,))
         categorias = cursor.fetchall()
 
         if request.method == 'POST':
             valor = float(request.form['valor'])
             tipo = int(request.form['tipo'])
             data = request.form['data']
-            categoria = int(request.form['categoria'])
+
+            categoria_form = request.form['categoria', '']
+
+            if categoria_form == 'nova':
+                return redirect(url_for('nova_categoria'))
+
+            if not categoria_form.isdigit():
+                flash('Selecione uma categoria válida!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            categoria = int(categoria_form)
+
             descricao = request.form['descricao'].strip()
 
             if valor <= 0:
