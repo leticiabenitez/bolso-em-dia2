@@ -185,11 +185,16 @@
                                                      alt="Editar">
                                             </a>
 
-                                            <form action="{{ url_for('inativar_movimentacao', id=rendimento.id) }}"
-                                                  method="POST">
-                                                <button type="submit" title="Inativar">
-                                                    Inativar
-                                                </button>
+                                            <form action="{{ url_for('inativar_movimentacao', id=rendimento.id) }}" method="POST">
+
+                                                {% if rendimento.status == 1 %}
+                                                    <input type="hidden" name="ativar" value="0">
+                                                    <button type="submit" title="Inativar">Inativar</button>
+                                                {% else %}
+                                                    <input type="hidden" name="ativar" value="1">
+                                                    <button type="submit" title="Ativar">Ativar</button>
+                                                {% endif %}
+
                                             </form>
 
                                             <form action="{{ url_for('excluir_movimentacao', id=rendimento.id) }}"
@@ -207,10 +212,14 @@
                                                      alt="Editar">
                                             </a>
 
-                                            <form action="{{ url_for('inativar_servico_extra', id=rendimento.id) }}"
-                                                  method="POST">
-                                                <input type="hidden" name="ativar" value="0">
-                                                <button type="submit">Inativar</button>
+                                            <form action="{{ url_for('inativar_servico_extra', id=rendimento.id) }}" method="POST">
+                                                {% if rendimento.status == 1 %}
+                                                    <input type="hidden" name="ativar" value="0">
+                                                    <button type="submit" title="Inativar">Inativar</button>
+                                                {% else %}
+                                                    <input type="hidden" name="ativar" value="1">
+                                                    <button type="submit" title="Ativar">Ativar</button>
+                                                {% endif %}
                                             </form>
 
                                             <form action="{{ url_for('excluir_servico_extra', id=rendimento.id) }}"
@@ -228,10 +237,14 @@
                                                      alt="Editar">
                                             </a>
 
-                                            <form action="{{ url_for('inativar_dia_trabalhado', id=rendimento.id) }}"
-                                                  method="POST">
-                                                <input type="hidden" name="ativar" value="0">
-                                                <button type="submit">Inativar</button>
+                                            <form action="{{ url_for('inativar_dia_trabalhado', id=rendimento.id) }}" method="POST">
+                                                {% if rendimento.status == 1 %}
+                                                    <input type="hidden" name="ativar" value="0">
+                                                    <button type="submit" title="Inativar">Inativar</button>
+                                                {% else %}
+                                                    <input type="hidden" name="ativar" value="1">
+                                                    <button type="submit" title="Ativar">Ativar</button>
+                                                {% endif %}
                                             </form>
 
                                             <form action="{{ url_for('excluir_dia_trabalhado', id=rendimento.id) }}"

@@ -89,12 +89,6 @@
 
         <div class="linha-topo"></div>
 
-        <div class="caminho-categoria">
-            <a href="{{ url_for('movimentacao') }}">Cadastrar Movimentação</a>
-            <span>›</span>
-            <strong>Editar Categoria</strong>
-        </div>
-
         <section class="titulo-categoria">
             <h1>Editar Categoria</h1>
         </section>
@@ -123,7 +117,7 @@
                 <div class="linha-categoria">
 
                     <div class="grupo-categoria nome-categoria">
-                        <label>Nome da Categoria <span>*</span></label>
+                        <label>Nome da Categoria</label>
 
                         <input
                             type="text"
@@ -135,7 +129,7 @@
                     </div>
 
                     <div class="grupo-categoria tipo-categoria">
-                        <label>Tipo <span>*</span></label>
+                        <label>Tipo </label>
 
                         <select name="tipo" required>
                             <option value="">Selecione</option>
@@ -161,7 +155,7 @@
                     </div>
 
                     <div class="grupo-categoria icone-escolha">
-                        <label>Ícone <span>*</span></label>
+                        <label>Ícone</label>
 
                         <details class="seletor-icone">
 
@@ -299,7 +293,7 @@
                 </div>
 
                 <div class="botoes-categoria">
-                    <a href="{{ url_for('movimentacao') }}" class="cancelar-categoria">
+                    <a href="{{ url_for('dashboard') }}" class="cancelar-categoria">
                         Cancelar
                     </a>
 

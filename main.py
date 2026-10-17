@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from datetime import datetime
 import fdb
 
@@ -745,7 +745,7 @@ def editar_categoria(id):
                 return redirect(url_for('editar_categoria', id=id))
 
             tipo = int(request.form['tipo'])
-            cor = request.form['cor']
+            cor = request.form['cor'].replace("#","")
             icone = request.form['icone']
 
             cursor.execute("""SELECT 1 FROM CATEGORIA WHERE upper(NOME_CATEGORIA) = ? AND ID_USUARIO = ? AND ID_CATEGORIA <> ?""", (nome_categoria.upper(), id_usuario, id))
@@ -829,8 +829,18 @@ def cadastrar_servico_extra():
     data = request.form['data']
     descricao = request.form['descricao'].strip()
 
+    data_atual = datetime.now().date()
+
+    if data > data_atual.strftime('%Y-%m-%d'):
+        flash('Não é possível cadastrar um serviço extra com data futura!', 'error')
+        return redirect(url_for('servico_extra'))
+
     if not servico_realizado:
         flash('O campo "Serviço Realizado" não pode ser vazio!', 'error')
+        return redirect(url_for('servico_extra'))
+
+    if not descricao:
+        flash('O campo "Descrição do serviço" não pode ser vazio!', 'error')
         return redirect(url_for('servico_extra'))
 
     if valor <= 0:
@@ -847,7 +857,7 @@ def cadastrar_servico_extra():
         cursor.execute("""INSERT INTO SERVICO_EXTRA (SERVICO_REALIZADO, VALOR, DATA_SERVICO, DESCRICAO, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, 1)""", (servico_realizado, valor, data, descricao, id_usuario))
         con.commit()
         flash('Serviço cadastrado com sucesso!', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('rendimentos'))
 
     except Exception as e:
         con.rollback()
@@ -928,9 +938,12 @@ def editar_servico_extra(id):
             data_servico = request.form['data_servico']
             descricao = request.form['descricao'].strip()
 
-            # transforma em AAAA-MM-DD para conferir se não ta sendo alterada para uma data passada
             if data_servico < data_atual.strftime('%Y-%m-%d'):
                 flash('Não é possível alterar para uma data retroativa!', 'error')
+                return redirect(url_for('editar_servico_extra', id=id))
+
+            if data_servico > data_atual.strftime('%Y-%m-%d'):
+                flash('Não é possível alterar para uma data futura!', 'error')
                 return redirect(url_for('editar_servico_extra', id=id))
 
             if not servico_realizado:
@@ -1032,8 +1045,8 @@ def cadastrar_dia_trabalhado():
 
     data_atual = datetime.now().date()
 
-    if data < data_atual.strftime('%Y-%m-%d'):
-        flash('Não é possível cadastrar um dia trabalhado com data retroativa!', 'error')
+    if data > data_atual.strftime('%Y-%m-%d'):
+        flash('Não é possível cadastrar um dia trabalhado com data futura!', 'error')
         return redirect(url_for('dia_trabalhado'))
 
     cursor = con.cursor()
@@ -1061,7 +1074,7 @@ def cadastrar_dia_trabalhado():
         cursor.execute("""INSERT INTO DIA_TRABALHADO (DATA_TRABALHO, PACOTES_COLETADOS, VALOR_TOTAL, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, 1)""", (data, pacotes_coletados, valor_total, id_usuario))
         con.commit()
         flash('Dia trabalhado registrado com sucesso!', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('rendimentos'))
 
     except Exception as e:
         con.rollback()
@@ -1145,12 +1158,32 @@ def editar_dia_trabalhado(id):
                 flash('O campo "Pacotes coletados" deve ser maior que zero!', 'error')
                 return redirect(url_for('editar_dia_trabalhado', id=id))
 
-            # transforma em AAAA-MM-DD para conferir se não ta sendo alterada para uma data passada
             if data < data_atual.strftime('%Y-%m-%d'):
                 flash('Não é possível alterar para uma data retroativa!', 'error')
                 return redirect(url_for('editar_dia_trabalhado', id=id))
 
-            cursor.execute("""UPDATE DIA_TRABALHADO SET DATA_TRABALHO = ?, PACOTES_COLETADOS = ? WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""", (data, pacotes_coletados, id_usuario, id))
+            if data > data_atual.strftime('%Y-%m-%d'):
+                flash('Não é possível alterar para uma data futura!', 'error')
+                return redirect(url_for('editar_dia_trabalhado', id=id))
+
+            cursor.execute("""SELECT VALOR_DIARIA, ADICIONAL, MIN_PACOTES FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
+
+            dados_usuario = cursor.fetchone()
+
+            if not dados_usuario:
+                flash('Dados do usuário não encontrados!', 'error')
+                return redirect(url_for('rendimentos'))
+
+            valor_diaria, adicional, min_pacotes = dados_usuario
+
+            valor_total = calcular_valor_total(
+                pacotes_coletados,
+                valor_diaria,
+                adicional,
+                min_pacotes
+            )
+
+            cursor.execute("""UPDATE DIA_TRABALHADO SET DATA_TRABALHO = ?, PACOTES_COLETADOS = ?, VALOR_TOTAL = ? WHERE ID_USUARIO = ? AND ID_DIA_TRABALHADO = ?""", (data, pacotes_coletados, valor_total, id_usuario, id))
             con.commit()
             flash('Registro editado com sucesso!', 'success')
             return redirect(url_for('rendimentos'))
@@ -1262,8 +1295,8 @@ def cadastrar_movimentacao():
 
     data_atual = datetime.now().date()
 
-    if data < data_atual.strftime('%Y-%m-%d'):
-        flash('Não é possível cadastrar um dia trabalhado com data retroativa!', 'error')
+    if data > data_atual.strftime('%Y-%m-%d'):
+        flash('Não é possível cadastrar uma movimentação com data futura!', 'error')
         return redirect(url_for('movimentacao'))
 
     cursor = con.cursor()
@@ -1281,7 +1314,10 @@ def cadastrar_movimentacao():
         cursor.execute("""INSERT INTO MOVIMENTACAO (VALOR, TIPO, DATA_MOVIMENTACAO, DESCRICAO, ID_CATEGORIA, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, ?, 1)""", (valor, tipo, data, descricao, categoria, id_usuario))
         con.commit()
         flash('Movimentação cadastrada com sucesso!', 'success')
-        return redirect(url_for('dashboard'))
+        if tipo == 1:
+            return redirect(url_for('despesas'))
+        else:
+            return redirect(url_for('rendimentos'))
 
     except Exception as e:
         con.rollback()
@@ -1300,10 +1336,18 @@ def inativar_movimentacao(id):
         return redirect(url_for('pagina_login'))
 
     id_usuario = session['id_usuario']
+
+    ativar = int(request.form['ativar'])
+
+    if ativar == 1:
+        mensagem = 'ativada'
+    else:
+        mensagem = 'inativada'
+
     cursor = con.cursor()
 
     try:
-        cursor.execute("""SELECT TIPO, DATA_MOVIMENTACAO FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ? AND STATUS = 1""", (id_usuario, id))
+        cursor.execute("""SELECT TIPO, DATA_MOVIMENTACAO FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ?""", (id_usuario, id))
 
         movimentacao = cursor.fetchone()
 
@@ -1312,19 +1356,10 @@ def inativar_movimentacao(id):
             return redirect(url_for('dashboard'))
 
         tipo = movimentacao[0]
-        data_atual = datetime.now().date()
 
-        if movimentacao[1] >= data_atual:
-            flash('Só é possível inativar movimentações de datas passadas!', 'error')
-
-            if tipo == 1:
-                return redirect(url_for('despesas'))
-            else:
-                return redirect(url_for('rendimentos'))
-
-        cursor.execute("""UPDATE MOVIMENTACAO SET STATUS = 0 WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ?""", (id_usuario, id))
+        cursor.execute("""UPDATE MOVIMENTACAO SET STATUS = ? WHERE ID_USUARIO = ? AND ID_MOVIMENTACAO = ?""", (ativar, id_usuario, id))
         con.commit()
-        flash('Movimentação inativada com sucesso!', 'success')
+        flash(f'Movimentação {mensagem} com sucesso!', 'success')
 
         if tipo == 1:
             return redirect(url_for('despesas'))
@@ -1361,8 +1396,7 @@ def excluir_movimentacao(id):
         data_atual = datetime.now().date()
 
         if movimentacao[1] < data_atual:
-            flash(
-                'Não é possível excluir movimentações de datas passadas!','error')
+            flash('Não é possível excluir movimentações de datas passadas!','error')
             if tipo == 2:
                 return redirect(url_for('rendimentos'))
             else:
@@ -1407,13 +1441,19 @@ def editar_movimentacao(id):
 
         if movimentacao[5] == 0:
             flash('Uma movimentação inativada não pode ser editada.', 'error')
-            return redirect(url_for('dashboard'))
+            if movimentacao[1] == 2:
+                return redirect(url_for('rendimentos'))
+            else:
+                return redirect(url_for('despesas'))
 
-        data_atual = str(datetime.now().date())
+        data_atual = datetime.now().date()
 
-        if str(movimentacao[2]) < data_atual:
+        if movimentacao[2] < data_atual:
             flash('Não é possível editar movimentações de datas passadas!', 'error')
-            return redirect(url_for('dashboard'))
+            if movimentacao[1] == 2:
+                return redirect(url_for('rendimentos'))
+            else:
+                return redirect(url_for('despesas'))
 
         cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN (1, 2) AND STATUS = 1 UNION SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 ORDER BY 2""", (id_usuario,))
         categorias = cursor.fetchall()
@@ -1423,7 +1463,7 @@ def editar_movimentacao(id):
             tipo = int(request.form['tipo'])
             data = request.form['data']
 
-            categoria_form = request.form['categoria', '']
+            categoria_form = request.form['categoria']
 
             if categoria_form == 'nova':
                 return redirect(url_for('nova_categoria'))
@@ -1452,8 +1492,12 @@ def editar_movimentacao(id):
                 flash('Tipo de movimentação inválido!', 'error')
                 return redirect(url_for('editar_movimentacao', id=id))
 
-            if data < data_atual:
+            if data < data_atual.strftime('%Y-%m-%d'):
                 flash('Não é possível alterar para uma data passada!', 'error')
+                return redirect(url_for('editar_movimentacao', id=id))
+
+            if data > data_atual.strftime('%Y-%m-%d'):
+                flash('Não é possível alterar para uma data futura!', 'error')
                 return redirect(url_for('editar_movimentacao', id=id))
 
             cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND TIPO = ? AND STATUS = 1 AND ID_CATEGORIA IN (1, 2) UNION SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND TIPO = ? AND STATUS = 1""", (categoria, tipo, categoria, id_usuario, tipo))
@@ -1466,7 +1510,10 @@ def editar_movimentacao(id):
 
             con.commit()
             flash('Movimentação editada com sucesso!', 'success')
-            return redirect(url_for('dashboard'))
+            if tipo == 2:
+                return redirect(url_for('rendimentos'))
+            else:
+                return redirect(url_for('despesas'))
 
         else:
             return render_template('editar_movimentacao.html', movimentacao=movimentacao, categorias=categorias, usuario=usuario, id=id)
@@ -1497,7 +1544,7 @@ def despesas():
         cursor.execute("""SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO, C.NOME_CATEGORIA, M.DESCRICAO, M.VALOR, M.STATUS
             FROM MOVIMENTACAO M
             LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
-            WHERE M.ID_USUARIO = ? AND M.TIPO = 1 AND M.STATUS = 1
+            WHERE M.ID_USUARIO = ? AND M.TIPO = 1
             ORDER BY M.DATA_MOVIMENTACAO DESC""", (id_usuario,))
         despesas = cursor.fetchall()
 
@@ -1545,12 +1592,15 @@ def rendimentos():
         rendimentos = []
 
         # Receitas
-        cursor.execute("""SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO,
-            COALESCE(C.NOME_CATEGORIA, 'Receita'), M.DESCRICAO, M.VALOR
+        cursor.execute("""
+            SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO,
+                COALESCE(C.NOME_CATEGORIA, 'Receita'),
+                M.DESCRICAO, M.VALOR, M.STATUS
             FROM MOVIMENTACAO M
             LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
-            WHERE M.ID_USUARIO = ? AND M.TIPO = 2 AND M.STATUS = 1 AND (C.NOME_CATEGORIA IS NULL OR C.NOME_CATEGORIA <> 'Dia Trabalhado')""",
-            (id_usuario,))
+            WHERE M.ID_USUARIO = ? AND M.TIPO = 2
+            AND (C.NOME_CATEGORIA IS NULL OR C.NOME_CATEGORIA <> 'Dia Trabalhado')
+        """, (id_usuario,))
 
         for r in cursor.fetchall():
             rendimentos.append({
@@ -1559,15 +1609,17 @@ def rendimentos():
                 'categoria': r[2],
                 'descricao': r[3],
                 'valor': r[4],
+                'status': r[5],
                 'tipo': 'movimentacao'
             })
 
         # Dias trabalhados
-        cursor.execute("""SELECT ID_DIA_TRABALHADO, DATA_TRABALHO,
-            VALOR_TOTAL
+        cursor.execute("""
+            SELECT ID_DIA_TRABALHADO, DATA_TRABALHO,
+                VALOR_TOTAL, STATUS
             FROM DIA_TRABALHADO
-            WHERE ID_USUARIO = ? AND STATUS = 1""",
-            (id_usuario,))
+            WHERE ID_USUARIO = ?
+        """, (id_usuario,))
 
         for d in cursor.fetchall():
             rendimentos.append({
@@ -1576,15 +1628,17 @@ def rendimentos():
                 'categoria': 'Dia Trabalhado',
                 'descricao': 'Receita cadastrada pelo Dia Trabalhado',
                 'valor': d[2],
+                'status': d[3],
                 'tipo': 'dia_trabalhado'
             })
 
         # Serviços extras
-        cursor.execute("""SELECT ID_SERVICO_EXTRA, DATA_SERVICO,
-            DESCRICAO, VALOR
+        cursor.execute("""
+            SELECT ID_SERVICO_EXTRA, DATA_SERVICO,
+                DESCRICAO, VALOR, STATUS
             FROM SERVICO_EXTRA
-            WHERE ID_USUARIO = ? AND STATUS = 1""",
-            (id_usuario,))
+            WHERE ID_USUARIO = ?
+        """, (id_usuario,))
 
         for s in cursor.fetchall():
             rendimentos.append({
@@ -1593,6 +1647,7 @@ def rendimentos():
                 'categoria': 'Serviço Extra',
                 'descricao': s[2],
                 'valor': s[3],
+                'status': s[4],
                 'tipo': 'servico_extra'
             })
 

@@ -100,7 +100,7 @@
             <form action="{{ url_for('editar_movimentacao', id=id) }}" method="POST">
                 <div class="informacao_movimentacao">
                     <div class="valor">
-                        <label>Valor recebido <span>*</span></label>
+                        <label>Valor recebido</label>
                         <div class="campo_valor">
                             <strong>R$</strong>
                             <input type="number" name="valor" min="0.01" step="0.01" placeholder="0,00" value="{{ movimentacao[0] }}" required>
@@ -108,7 +108,7 @@
                     </div>
 
                     <div class="tipo">
-                        <label>Tipo <span>*</span></label>
+                        <label>Tipo</label>
                         <div class="campo_tipo">
                             <select name="tipo" id="tipo" required onchange="filtrarCategorias()">
                                 <option value="">Selecione</option>
@@ -118,7 +118,7 @@
                         </div>
                     </div>
                     <div class="data">
-                        <label>Data <span>*</span></label>
+                        <label>Data</label>
                         <div class="campo_data">
                             <img src="{{ url_for('static', filename='uploads/calendario.png') }}" alt="">
                             <input type="date" name="data" value="{{ movimentacao[2].strftime('%Y-%m-%d') if movimentacao[2] else '' }}" required>
@@ -126,7 +126,7 @@
                     </div>
 
                     <div class="categoria">
-                        <label>Categoria <span>*</span></label>
+                        <label>Categoria</label>
                         <div class="campo_categoria">
                             <select name="categoria" id="categoria" required>
                                 <option value="">Selecione</option>
@@ -150,7 +150,7 @@
                 </div>
 
                 <div class="descricao">
-                    <label>Descrição da movimentação <span>*</span></label>
+                    <label>Descrição da movimentação</label>
                     <div class="campo_descricao">
                         <textarea name="descricao" maxlength="500" placeholder="Descreva os detalhes da movimentação...">{{ movimentacao[3] }}</textarea>
                         <span class="contador-descricao">0/500</span>
