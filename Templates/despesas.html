@@ -105,8 +105,6 @@
 
         <section class="cards-despesas">
             <div class="card-despesa">
-                <span class="info-card-despesa">i</span>
-
                 <div class="icone-card-despesa vermelho">
                     <img src="{{ url_for('static', filename='uploads/cartao-vermelho.png') }}" alt="">
                 </div>
@@ -118,8 +116,6 @@
             </div>
 
             <div class="card-despesa">
-                <span class="info-card-despesa">i</span>
-
                 <div class="icone-card-despesa vermelho">
                     <img src="{{ url_for('static', filename='uploads/cartao-vermelho.png') }}" alt="">
                 </div>
@@ -131,8 +127,6 @@
             </div>
 
             <div class="card-despesa">
-                <span class="info-card-despesa">i</span>
-
                 <div class="icone-card-despesa verde">
                     <img src="{{ url_for('static', filename='uploads/list-verde.png') }}" alt="">
                 </div>
@@ -156,10 +150,13 @@
                     <div class="icone-minhas-despesas">
                         <img src="{{ url_for('static', filename='uploads/calendar-verde.png') }}" alt="">
                     </div>
+
                     <h2>Minhas despesas <span>({{ quantidade_despesas }})</span></h2>
                 </div>
 
-                <img class="pesquisa-mobile-despesas" src="{{ url_for('static', filename='uploads/pesquisa-azul.png') }}" alt="">
+                <button type="button" class="pesquisa-mobile-despesas" id="botao-pesquisa-despesa">
+                    <img src="{{ url_for('static', filename='uploads/pesquisa-azul.png') }}" alt="Pesquisar">
+                </button>
             </div>
 
             <div class="filtros-tabela">
@@ -170,6 +167,7 @@
 
                 <div class="filtro-tabela">
                     <img src="{{ url_for('static', filename='uploads/calendar-azul.png') }}" alt="">
+
                     <select id="filtro-mes">
                         <option value="todos">Todos os meses</option>
                         <option value="1">Janeiro</option>
@@ -189,6 +187,7 @@
 
                 <div class="filtro-tabela">
                     <img src="{{ url_for('static', filename='uploads/tag-azul-2.png') }}" alt="">
+
                     <select id="filtro-categoria">
                         <option value="todos">Todas as categorias</option>
                     </select>
@@ -335,5 +334,20 @@
 
     <script src="{{ url_for('static', filename='js/filtro_despesas.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modal_exclusao.js') }}"></script>
+
+    <script>
+        var botaoPesquisaDespesa = document.querySelector("#botao-pesquisa-despesa")
+        var minhasDespesas = document.querySelector(".minhas-despesas")
+        var buscarDespesa = document.querySelector("#buscar-despesa")
+
+        botaoPesquisaDespesa.addEventListener("click", function () {
+            if (minhasDespesas.classList.contains("busca-aberta")) {
+                minhasDespesas.classList.remove("busca-aberta")
+            } else {
+                minhasDespesas.classList.add("busca-aberta")
+                buscarDespesa.focus()
+            }
+        })
+    </script>
 </body>
 </html>
