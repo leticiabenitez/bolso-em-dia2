@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nova_categoria.css') }}">
 </head>
 <body class="pagina-sistema">
-
     <aside class="menu-lateral">
         <a href="{{ url_for('movimentacao') }}" class="seta-voltar">‹</a>
         <img class="logo-perfil" src="{{ url_for('static', filename='uploads/logo-horizontal.png') }}" alt="Bolso em Dia">
@@ -83,6 +82,12 @@
 
         <div class="linha-topo"></div>
 
+        <div class="caminho-categoria">
+            <a href="{{ url_for('movimentacao') }}">Cadastrar Movimentação</a>
+            <span>›</span>
+            <strong>Adicionar Categoria</strong>
+        </div>
+
         <section class="titulo-categoria">
             <h1>Adicionar Categoria</h1>
         </section>
@@ -98,6 +103,7 @@
                 <div class="icone-categoria">
                     <img src="{{ url_for('static', filename='uploads/tag.png') }}" alt="">
                 </div>
+
                 <div>
                     <h2>Adicionar Categoria</h2>
                     <p>Preencha todos os dados necessários</p>
@@ -106,7 +112,6 @@
 
             <form action="{{ url_for('cadastrar_categoria') }}" method="POST">
                 <div class="linha-categoria">
-
                     <div class="grupo-categoria nome-categoria">
                         <label>Nome da Categoria <span>*</span></label>
                         <input type="text" name="nome_categoria" placeholder="Ex.: Academia" required>
@@ -114,6 +119,7 @@
 
                     <div class="grupo-categoria tipo-categoria">
                         <label>Tipo <span>*</span></label>
+
                         <select name="tipo" required>
                             <option value="">Selecione</option>
                             <option value="1">Despesa</option>
@@ -243,12 +249,12 @@
                 </div>
             </form>
         </section>
-        <script>
-            function mostrarIcone(nome) {
-                document.getElementById('icone-selecionado').innerHTML = nome;
-            }
-        </script>
     </main>
 
+    <script>
+        function mostrarIcone(nome) {
+            document.getElementById('icone-selecionado').innerHTML = nome
+        }
+    </script>
 </body>
 </html>
