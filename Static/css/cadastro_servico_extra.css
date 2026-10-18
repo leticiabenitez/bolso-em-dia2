@@ -33,6 +33,7 @@ body {
 .icone-servico {
     width: 58px;
     height: 58px;
+    flex: 0 0 58px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,7 +68,8 @@ body {
     font-weight: 700;
 }
 
-.grupo-servico label span {
+.grupo-servico label span,
+.grupo-descricao label span {
     color: var(--vermelho);
 }
 
@@ -79,6 +81,7 @@ body {
     border-radius: 9px;
     background-color: var(--branco);
     color: var(--azul-cinzento-escuro);
+    font-family: inherit;
     font-size: 14px;
     outline: none;
 }
@@ -117,6 +120,7 @@ body {
     padding: 0 12px;
     border: none;
     outline: none;
+    font-family: inherit;
     font-size: 15px;
 }
 
@@ -152,6 +156,7 @@ body {
     outline: none;
     background-color: var(--branco);
     color: var(--azul-cinzento-escuro);
+    font-family: inherit;
     font-size: 14px;
 }
 
@@ -173,6 +178,7 @@ body {
     border: 1px solid var(--cinza);
     border-radius: 9px;
     outline: none;
+    font-family: inherit;
     font-size: 14px;
 }
 
@@ -209,6 +215,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
+    font-family: inherit;
     font-size: 15px;
     font-weight: 700;
 }
@@ -227,6 +234,7 @@ body {
     background-color: var(--verde-escuro);
     color: var(--branco);
     border: none;
+    cursor: pointer;
 }
 
 .campo-valor input[type="number"]::-webkit-inner-spin-button,
@@ -244,7 +252,6 @@ body {
 }
 
 /* TABLET */
-
 @media (min-width: 767px) and (max-width: 1023px) {
     .titulo-servico h1 {
         font-size: 28px;
@@ -268,74 +275,133 @@ body {
 }
 
 /* MOBILE L */
-
 @media (min-width: 375px) and (max-width: 424px) {
     .titulo-servico {
-        padding: 5px 2px 15px;
+        padding: 4px 0 10px;
+    }
+
+    .titulo-servico > p:first-child {
+        display: none;
     }
 
     .titulo-servico h1 {
-        font-size: 27px;
+        margin: 0;
+        font-size: 25px;
+        line-height: 29px;
+    }
+
+    .titulo-servico > p:last-child {
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 14px;
     }
 
     .card-servico {
-        padding: 14px;
-        border-radius: 12px;
+        min-height: calc(100vh - 205px);
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 7px;
     }
 
     .cabecalho-servico {
-        gap: 12px;
-        margin-bottom: 22px;
+        display: none;
     }
 
-    .icone-servico {
-        width: 48px;
-        height: 48px;
-    }
-
-    .icone-servico img {
-        width: 30px;
-        height: 30px;
-    }
-
-    .cabecalho-servico h2 {
-        font-size: 19px;
-    }
-
-    .cabecalho-servico p {
-        font-size: 12px;
+    .card-servico form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .grupo-servico label,
     .grupo-descricao label {
-        font-size: 14px;
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+
+    .grupo-servico > input {
+        height: 48px;
+        padding: 7px 9px;
+        font-size: 11px;
+        line-height: 14px;
     }
 
     .linha-servico {
-        margin-top: 17px;
+        margin-top: 18px;
         flex-direction: column;
-        gap: 12px;
+        gap: 18px;
     }
 
     .linha-servico .grupo-servico {
         width: 100%;
     }
 
+    .campo-valor,
+    .campo-data {
+        height: 38px;
+        border-radius: 6px;
+    }
+
+    .campo-valor strong {
+        width: 40px;
+        font-size: 10px;
+    }
+
+    .campo-valor input,
+    .campo-data input {
+        padding: 0 9px;
+        font-size: 11px;
+    }
+
+    .icone-campo {
+        width: 38px;
+        flex: 0 0 38px;
+    }
+
+    .icone-campo img {
+        width: 21px;
+        height: 21px;
+    }
+
     .grupo-descricao {
-        margin-top: 17px;
+        margin-top: 18px;
     }
 
     .campo-descricao textarea {
-        height: 150px;
+        height: 118px;
+        padding: 10px 10px 22px 36px;
+        border-radius: 6px;
+        font-size: 11px;
+        line-height: 14px;
+    }
+
+    .icone-descricao {
+        width: 18px;
+        height: 18px;
+        top: 9px;
+        left: 9px;
+    }
+
+    .contador-descricao {
+        right: 5px;
+        bottom: 5px;
+        font-size: 7px;
     }
 
     .botoes-servico {
+        margin-top: auto;
+        padding-top: 18px;
         flex-direction: column;
+        gap: 8px;
     }
 
     .cancelar-servico,
     .registrar-servico {
         width: 100%;
+        height: 38px;
+        border-radius: 6px;
+        font-size: 11px;
     }
 
     .registrar-servico {
@@ -348,74 +414,133 @@ body {
 }
 
 /* MOBILE M */
-
 @media (min-width: 320px) and (max-width: 374px) {
     .titulo-servico {
-        padding: 5px 2px 15px;
+        padding: 4px 0 9px;
+    }
+
+    .titulo-servico > p:first-child {
+        display: none;
     }
 
     .titulo-servico h1 {
-        font-size: 24px;
+        margin: 0;
+        font-size: 23px;
+        line-height: 27px;
+    }
+
+    .titulo-servico > p:last-child {
+        margin-top: 2px;
+        font-size: 10px;
+        line-height: 13px;
     }
 
     .card-servico {
-        padding: 12px;
-        border-radius: 12px;
+        min-height: calc(100vh - 195px);
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 7px;
     }
 
     .cabecalho-servico {
-        gap: 10px;
-        margin-bottom: 20px;
+        display: none;
     }
 
-    .icone-servico {
-        width: 45px;
-        height: 45px;
-    }
-
-    .icone-servico img {
-        width: 28px;
-        height: 28px;
-    }
-
-    .cabecalho-servico h2 {
-        font-size: 17px;
-    }
-
-    .cabecalho-servico p {
-        font-size: 11px;
+    .card-servico form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .grupo-servico label,
     .grupo-descricao label {
-        font-size: 14px;
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+
+    .grupo-servico > input {
+        height: 47px;
+        padding: 7px 8px;
+        font-size: 10px;
+        line-height: 13px;
     }
 
     .linha-servico {
-        margin-top: 16px;
+        margin-top: 17px;
         flex-direction: column;
-        gap: 12px;
+        gap: 17px;
     }
 
     .linha-servico .grupo-servico {
         width: 100%;
     }
 
+    .campo-valor,
+    .campo-data {
+        height: 37px;
+        border-radius: 6px;
+    }
+
+    .campo-valor strong {
+        width: 38px;
+        font-size: 9px;
+    }
+
+    .campo-valor input,
+    .campo-data input {
+        padding: 0 8px;
+        font-size: 10px;
+    }
+
+    .icone-campo {
+        width: 37px;
+        flex: 0 0 37px;
+    }
+
+    .icone-campo img {
+        width: 20px;
+        height: 20px;
+    }
+
     .grupo-descricao {
-        margin-top: 16px;
+        margin-top: 17px;
     }
 
     .campo-descricao textarea {
-        height: 145px;
+        height: 114px;
+        padding: 9px 9px 21px 34px;
+        border-radius: 6px;
+        font-size: 10px;
+        line-height: 13px;
+    }
+
+    .icone-descricao {
+        width: 17px;
+        height: 17px;
+        top: 9px;
+        left: 9px;
+    }
+
+    .contador-descricao {
+        right: 5px;
+        bottom: 5px;
+        font-size: 7px;
     }
 
     .botoes-servico {
+        margin-top: auto;
+        padding-top: 16px;
         flex-direction: column;
+        gap: 8px;
     }
 
     .cancelar-servico,
     .registrar-servico {
         width: 100%;
+        height: 37px;
+        border-radius: 6px;
+        font-size: 10px;
     }
 
     .registrar-servico {
@@ -428,61 +553,93 @@ body {
 }
 
 /* MOBILE S */
-
 @media (max-width: 319px) {
     .titulo-servico {
-        padding: 4px 1px 12px;
+        padding: 3px 0 8px;
     }
 
-    .titulo-servico p {
-        font-size: 12px;
+    .titulo-servico > p:first-child {
+        display: none;
     }
 
     .titulo-servico h1 {
-        font-size: 21px;
+        margin: 0;
+        font-size: 20px;
+        line-height: 23px;
+    }
+
+    .titulo-servico > p:last-child {
+        margin-top: 2px;
+        font-size: 9px;
+        line-height: 12px;
     }
 
     .card-servico {
-        padding: 10px;
-        border-radius: 10px;
+        min-height: calc(100vh - 185px);
+        padding: 7px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 7px;
     }
 
     .cabecalho-servico {
-        gap: 8px;
-        margin-bottom: 18px;
+        display: none;
     }
 
-    .icone-servico {
-        width: 42px;
-        height: 42px;
-    }
-
-    .icone-servico img {
-        width: 26px;
-        height: 26px;
-    }
-
-    .cabecalho-servico h2 {
-        font-size: 15px;
-    }
-
-    .cabecalho-servico p {
-        font-size: 10px;
+    .card-servico form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .grupo-servico label,
     .grupo-descricao label {
-        font-size: 13px;
+        margin-bottom: 4px;
+        font-size: 11px;
+    }
+
+    .grupo-servico > input {
+        height: 44px;
+        padding: 6px 7px;
+        font-size: 9px;
+        line-height: 12px;
     }
 
     .linha-servico {
         margin-top: 15px;
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
     }
 
     .linha-servico .grupo-servico {
         width: 100%;
+    }
+
+    .campo-valor,
+    .campo-data {
+        height: 35px;
+        border-radius: 6px;
+    }
+
+    .campo-valor strong {
+        width: 35px;
+        font-size: 8px;
+    }
+
+    .campo-valor input,
+    .campo-data input {
+        padding: 0 7px;
+        font-size: 9px;
+    }
+
+    .icone-campo {
+        width: 35px;
+        flex: 0 0 35px;
+    }
+
+    .icone-campo img {
+        width: 18px;
+        height: 18px;
     }
 
     .grupo-descricao {
@@ -490,16 +647,39 @@ body {
     }
 
     .campo-descricao textarea {
-        height: 140px;
+        height: 108px;
+        padding: 8px 8px 20px 31px;
+        border-radius: 6px;
+        font-size: 9px;
+        line-height: 12px;
+    }
+
+    .icone-descricao {
+        width: 16px;
+        height: 16px;
+        top: 8px;
+        left: 8px;
+    }
+
+    .contador-descricao {
+        right: 4px;
+        bottom: 4px;
+        font-size: 6px;
     }
 
     .botoes-servico {
+        margin-top: auto;
+        padding-top: 14px;
         flex-direction: column;
+        gap: 7px;
     }
 
     .cancelar-servico,
     .registrar-servico {
         width: 100%;
+        height: 35px;
+        border-radius: 6px;
+        font-size: 9px;
     }
 
     .registrar-servico {
