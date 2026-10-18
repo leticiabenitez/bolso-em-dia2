@@ -10,10 +10,8 @@
 </head>
 <body class="pagina-sistema">
     <aside class="menu-lateral">
-        <!-- Volta para a dashboard. A seta aparece somente no mobile. -->
         <a href="{{ url_for('dashboard') }}" class="seta-voltar">‹</a>
         <img class="logo-perfil" src="{{ url_for('static', filename='uploads/logo-horizontal.png') }}" alt="Bolso em Dia">
-
         <nav class="navegacao-perfil">
             <a href="{{ url_for('dashboard') }}" class="pagina-ativa">
                 <img src="{{ url_for('static', filename='uploads/perfil-dashboard.png') }}" alt="">
@@ -48,7 +46,6 @@
                 <span>Histórico Semanal</span>
             </a>
         </nav>
-
         <a class="sair-perfil" href="{{ url_for('logout') }}">
             <div class="sair-conteudo">
                 <img src="{{ url_for('static', filename='uploads/perfil-sair.png') }}" alt="">
@@ -82,7 +79,6 @@
         {% endwith %}
 
         <section class="titulo-dashboard">
-            <!-- Exibe somente os dois primeiros nomes do usuário -->
             <p>Olá, {{ usuario[0].split()[:2] | join(' ') }}!</p>
             <h1>Dashboard</h1>
             <p>Acompanhe seus ganhos, despesas e progresso financeiro.</p>
@@ -308,6 +304,7 @@
             <div class="opcoes-mais-mobile">
                 <a href="{{ url_for('dia_trabalhado') }}">Dia Trabalhado</a>
                 <a href="{{ url_for('servico_extra') }}">Serviço Extra</a>
+                <a href="{{ url_for('todas_categorias') }}">Categorias</a>
                 <a href="#">Relatórios</a>
                 <a href="#">Histórico Semanal</a>
             </div>
@@ -317,11 +314,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        const ctx = document.getElementById('myChart');
-        const filtroAno = document.getElementById('filtro-ano');
-        const ganhosPorAno = {{ ganhos_por_ano | tojson }};
-        const anoAtual = "{{ ano_atual }}";
-        const mobile = window.innerWidth <= 766;
+        const ctx = document.getElementById('myChart')
+        const filtroAno = document.getElementById('filtro-ano')
+        const ganhosPorAno = {{ ganhos_por_ano | tojson }}
+        const anoAtual = "{{ ano_atual }}"
 
         const grafico = new Chart(ctx, {
             type: 'bar',
@@ -331,7 +327,7 @@
                     data: ganhosPorAno[anoAtual],
                     backgroundColor: '#14A83B',
                     borderWidth: 0,
-                    barThickness: mobile ? 8 : 17
+                    barThickness: 17
                 }]
             },
             options: {
@@ -345,7 +341,7 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return 'R$ ' + context.raw.toFixed(2);
+                                return 'R$ ' + context.raw.toFixed(2)
                             }
                         }
                     }
@@ -354,33 +350,25 @@
                     x: {
                         beginAtZero: true,
                         ticks: {
-                            font: {
-                                size: mobile ? 8 : 12
-                            },
                             callback: function(valor) {
-                                return 'R$ ' + valor;
+                                return 'R$ ' + valor
                             }
                         }
                     },
                     y: {
-                        ticks: {
-                            font: {
-                                size: mobile ? 8 : 12
-                            }
-                        },
                         grid: {
                             display: false
                         }
                     }
                 }
             }
-        });
+        })
 
         filtroAno.addEventListener('change', function() {
-            const anoSelecionado = filtroAno.value;
-            grafico.data.datasets[0].data = ganhosPorAno[anoSelecionado];
-            grafico.update();
-        });
+            const anoSelecionado = filtroAno.value
+            grafico.data.datasets[0].data = ganhosPorAno[anoSelecionado]
+            grafico.update()
+        })
     </script>
 </body>
 </html>
