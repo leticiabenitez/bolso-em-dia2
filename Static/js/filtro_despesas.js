@@ -91,7 +91,7 @@ function filtrarDespesas() {
 
 
         if (mostrarBusca && mostrarMes && mostrarCategoria && mostrarPeriodo) {
-            item.style.display = "table-row"
+            item.style.display = ""
         } else {
             item.style.display = "none"
         }
