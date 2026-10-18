@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"D:\Desktop\BOLSO-EM-DIA\BANCO.FDB"
+database = r"C:\Users\Borella\Downloads\bolso-em-dia-main\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -311,12 +311,18 @@ def dashboard():
         ganhos_mensais = [0] * 12
         despesas_mensais = [0] * 12
 
+        anos_registrados = [ano_atual]
+        ganhos_por_ano = {}
+
         cursor.execute("""SELECT DATA_TRABALHO, PACOTES_COLETADOS FROM DIA_TRABALHADO WHERE ID_USUARIO = ? AND STATUS = 1""", (id_usuario,))
         dias_trabalhados = cursor.fetchall()
 
         for dia in dias_trabalhados:
             data_trabalho = dia[0]
             pacotes = dia[1] or 0
+
+            if data_trabalho.year not in anos_registrados:
+                anos_registrados.append(data_trabalho.year)
 
             if data_trabalho.year == ano_atual:
                 dias_trabalhados_ano += 1
@@ -334,18 +340,26 @@ def dashboard():
             valor = float(movimentacao[1] or 0)
             tipo = movimentacao[2]
 
+            ano_movimentacao = data_movimentacao.year
+            mes = data_movimentacao.month - 1
+
+            if ano_movimentacao not in anos_registrados:
+                anos_registrados.append(ano_movimentacao)
+
+            if ano_movimentacao not in ganhos_por_ano:
+                ganhos_por_ano[ano_movimentacao] = [0] * 12
+
+            if tipo == 2:
+                ganhos_por_ano[ano_movimentacao][mes] += valor
+
             if data_movimentacao.year == ano_atual:
 
                 if tipo == 1:
                     despesas_ano += valor
-
-                    mes = data_movimentacao.month - 1
                     despesas_mensais[mes] += valor
 
                 elif tipo == 2:
                     ganho_ano += valor
-
-                    mes = data_movimentacao.month - 1
                     ganhos_mensais[mes] += valor
 
             elif data_movimentacao.year == ano_anterior:
@@ -356,10 +370,13 @@ def dashboard():
                 elif tipo == 2:
                     ganho_anterior += valor
 
+        if ano_atual not in ganhos_por_ano:
+            ganhos_por_ano[ano_atual] = [0] * 12
+
+        anos_registrados.sort(reverse=True)
 
         saldo_atual = ganho_ano - despesas_ano
         saldo_anterior = ganho_anterior - despesas_anterior
-
 
         if dias_trabalhados_ano > 0:
             media_ganho_dia = ganho_ano / dias_trabalhados_ano
@@ -370,7 +387,6 @@ def dashboard():
             media_ganho_dia_anterior = ganho_anterior / dias_trabalhados_anterior
         else:
             media_ganho_dia_anterior = 0
-
 
         if ganho_anterior > 0:
             ganho_percentual = round(abs((ganho_ano - ganho_anterior) / ganho_anterior * 100))
@@ -402,7 +418,6 @@ def dashboard():
         else:
             media_percentual = 0
 
-
         ganho_subiu = ganho_ano > ganho_anterior
         despesas_subiram = despesas_ano > despesas_anterior
         saldo_subiu = saldo_atual > saldo_anterior
@@ -412,7 +427,6 @@ def dashboard():
         media_subiu = media_ganho_dia > media_ganho_dia_anterior
 
         saldo_negativo = saldo_atual < 0
-
 
         mes_atual = datetime.now().month
         saldo_mes_atual = ganhos_mensais[mes_atual - 1] - despesas_mensais[mes_atual - 1]
@@ -432,12 +446,14 @@ def dashboard():
         saldo_projetado_mensal = saldo_atual / mes_atual
         saldo_projetado_anual = saldo_projetado_mensal * 12
 
-
         return render_template(
             'dashboard.html',
 
             usuario=usuario,
             ano_atual=ano_atual,
+
+            anos_registrados=anos_registrados,
+            ganhos_por_ano=ganhos_por_ano,
 
             ganho_ano=ganho_ano,
             despesas_ano=despesas_ano,
@@ -867,7 +883,6 @@ def cadastrar_servico_extra():
     finally:
         cursor.close()
 
-
 @app.route('/excluir_servico_extra/<int:id>', methods=['POST'])
 def excluir_servico_extra(id):
     if 'id_usuario' not in session:
@@ -1235,7 +1250,6 @@ def excluir_dia_trabalhado(id):
 
 @app.route('/movimentacao')
 def movimentacao():
-
     if 'id_usuario' not in session:
         flash('É necessário realizar o login', 'error')
         return redirect(url_for('pagina_login'))
@@ -1246,7 +1260,7 @@ def movimentacao():
     try:
         usuario = buscar_dados(id_usuario)
 
-        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE STATUS = 1 AND (ID_CATEGORIA IN (1, 2) OR ID_USUARIO = ?) ORDER BY NOME_CATEGORIA""", (id_usuario,))
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE STATUS = 1 AND NOME_CATEGORIA <> 'Dia Trabalhado' AND (ID_CATEGORIA IN (1, 2) OR ID_USUARIO = ?) ORDER BY NOME_CATEGORIA""", (id_usuario,))
         categorias = cursor.fetchall()
 
         return render_template("movimentacao.html", usuario=usuario, categorias=categorias)
@@ -1260,7 +1274,6 @@ def movimentacao():
 
 @app.route('/cadastrar_movimentacao', methods=['POST'])
 def cadastrar_movimentacao():
-
     if 'id_usuario' not in session:
         flash('É necessário realizar o login', 'error')
         return redirect(url_for('pagina_login'))
@@ -1302,9 +1315,9 @@ def cadastrar_movimentacao():
     cursor = con.cursor()
 
     try:
-        cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND STATUS = 1 AND ID_CATEGORIA IN(1, 2)
+        cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND STATUS = 1 AND NOME_CATEGORIA <> 'Dia Trabalhado' AND ID_CATEGORIA IN(1, 2)
                     UNION
-                    SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND STATUS = 1""",
+                    SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND STATUS = 1 AND NOME_CATEGORIA <> 'Dia Trabalhado'""",
                     (categoria, categoria, id_usuario))
 
         if not cursor.fetchone():
@@ -1314,6 +1327,7 @@ def cadastrar_movimentacao():
         cursor.execute("""INSERT INTO MOVIMENTACAO (VALOR, TIPO, DATA_MOVIMENTACAO, DESCRICAO, ID_CATEGORIA, ID_USUARIO, STATUS) VALUES (?, ?, ?, ?, ?, ?, 1)""", (valor, tipo, data, descricao, categoria, id_usuario))
         con.commit()
         flash('Movimentação cadastrada com sucesso!', 'success')
+
         if tipo == 1:
             return redirect(url_for('despesas'))
         else:
@@ -1455,7 +1469,7 @@ def editar_movimentacao(id):
             else:
                 return redirect(url_for('despesas'))
 
-        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN (1, 2) AND STATUS = 1 UNION SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 ORDER BY 2""", (id_usuario,))
+        cursor.execute("""SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_CATEGORIA IN (1, 2) AND STATUS = 1 AND NOME_CATEGORIA <> 'Dia Trabalhado' UNION SELECT ID_CATEGORIA, NOME_CATEGORIA, TIPO, COR, ICONE, STATUS FROM CATEGORIA WHERE ID_USUARIO = ? AND STATUS = 1 AND NOME_CATEGORIA <> 'Dia Trabalhado' ORDER BY 2""", (id_usuario,))
         categorias = cursor.fetchall()
 
         if request.method == 'POST':
@@ -1500,7 +1514,7 @@ def editar_movimentacao(id):
                 flash('Não é possível alterar para uma data futura!', 'error')
                 return redirect(url_for('editar_movimentacao', id=id))
 
-            cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND TIPO = ? AND STATUS = 1 AND ID_CATEGORIA IN (1, 2) UNION SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND TIPO = ? AND STATUS = 1""", (categoria, tipo, categoria, id_usuario, tipo))
+            cursor.execute("""SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND TIPO = ? AND STATUS = 1 AND NOME_CATEGORIA <> 'Dia Trabalhado' AND ID_CATEGORIA IN (1, 2) UNION SELECT ID_CATEGORIA FROM CATEGORIA WHERE ID_CATEGORIA = ? AND ID_USUARIO = ? AND TIPO = ? AND STATUS = 1 AND NOME_CATEGORIA <> 'Dia Trabalhado'""", (categoria, tipo, categoria, id_usuario, tipo))
 
             if not cursor.fetchone():
                 flash('Categoria inválida para esse tipo de movimentação!', 'error')
@@ -1541,7 +1555,7 @@ def despesas():
     try:
         usuario = buscar_dados(id_usuario)
 
-        cursor.execute("""SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO, C.NOME_CATEGORIA, M.DESCRICAO, M.VALOR, M.STATUS
+        cursor.execute("""SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO, C.NOME_CATEGORIA, M.DESCRICAO, M.VALOR, M.STATUS, C.COR, C.ICONE
             FROM MOVIMENTACAO M
             LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
             WHERE M.ID_USUARIO = ? AND M.TIPO = 1
@@ -1551,8 +1565,8 @@ def despesas():
         cursor.execute("""SELECT cast(COALESCE(SUM(VALOR), 0) as double precision) FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND TIPO = 1 AND STATUS = 1""", (id_usuario,))
         total_despesas = cursor.fetchone()[0]
 
-        cursor.execute("""SELECT cast(COALESCE(SUM(VALOR), 0) as double precision) FROM MOVIMENTACAO 
-            WHERE ID_USUARIO = ? AND TIPO = 1 AND STATUS = 1 
+        cursor.execute("""SELECT cast(COALESCE(SUM(VALOR), 0) as double precision) FROM MOVIMENTACAO
+            WHERE ID_USUARIO = ? AND TIPO = 1 AND STATUS = 1
             AND EXTRACT(MONTH FROM DATA_MOVIMENTACAO) = ? AND EXTRACT(YEAR FROM DATA_MOVIMENTACAO) = ?""", (id_usuario, datetime.now().month, datetime.now().year))
         despesas_mes = cursor.fetchone()[0]
 
@@ -1579,7 +1593,6 @@ def despesas():
 
 @app.route('/rendimentos')
 def rendimentos():
-
     if 'id_usuario' not in session:
         flash('É necessário realizar o login', 'error')
         return redirect(url_for('pagina_login'))
@@ -1593,14 +1606,16 @@ def rendimentos():
 
         # Receitas
         cursor.execute("""
-            SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO,
-                COALESCE(C.NOME_CATEGORIA, 'Receita'),
-                M.DESCRICAO, M.VALOR, M.STATUS
-            FROM MOVIMENTACAO M
-            LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
-            WHERE M.ID_USUARIO = ? AND M.TIPO = 2
-            AND (C.NOME_CATEGORIA IS NULL OR C.NOME_CATEGORIA <> 'Dia Trabalhado')
-        """, (id_usuario,))
+                       SELECT M.ID_MOVIMENTACAO, M.DATA_MOVIMENTACAO,
+                              COALESCE(C.NOME_CATEGORIA, 'Receita'),
+                              M.DESCRICAO, M.VALOR, M.STATUS,
+                              C.COR, C.ICONE
+                       FROM MOVIMENTACAO M
+                                LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
+                       WHERE M.ID_USUARIO = ?
+                         AND M.TIPO = 2
+                         AND (C.NOME_CATEGORIA IS NULL OR C.NOME_CATEGORIA <> 'Dia Trabalhado')
+                       """, (id_usuario,))
 
         for r in cursor.fetchall():
             rendimentos.append({
@@ -1610,7 +1625,9 @@ def rendimentos():
                 'descricao': r[3],
                 'valor': r[4],
                 'status': r[5],
-                'tipo': 'movimentacao'
+                'tipo': 'movimentacao',
+                'cor': r[6],
+                'icone': r[7]
             })
 
         # Dias trabalhados
