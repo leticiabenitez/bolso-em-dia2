@@ -405,33 +405,41 @@
     }
 
     .cards-despesas {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.15fr;
         gap: 7px;
     }
 
     .card-despesa {
+        width: 100%;
+        min-width: 0;
         min-height: 95px;
-        padding: 10px;
-        gap: 9px;
+        padding: 8px;
+        gap: 7px;
     }
 
     .icone-card-despesa {
-        width: 44px;
-        height: 44px;
-        flex: 0 0 44px;
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
     }
 
     .icone-card-despesa img {
-        width: 28px;
-        height: 28px;
+        width: 25px;
+        height: 25px;
+    }
+
+    .card-despesa > div:last-child {
+        min-width: 0;
     }
 
     .card-despesa p {
-        font-size: 10px;
+        font-size: 9px;
         white-space: nowrap;
     }
 
     .card-despesa h2 {
-        font-size: 19px;
+        font-size: 18px;
     }
 
     .filtros-tabela {
@@ -566,6 +574,7 @@
     }
 
     .cards-despesas {
+        display: flex;
         flex-direction: column;
         gap: 7px;
     }
@@ -593,6 +602,7 @@
     .card-despesa p {
         margin-bottom: 0;
         font-size: 10px;
+        white-space: normal;
     }
 
     .card-despesa h2 {
