@@ -690,3 +690,411 @@ body {
         order: 2;
     }
 }
+
+.pagina-editar-servico .card-servico {
+    padding: 26px;
+}
+
+.pagina-editar-servico .cabecalho-servico {
+    margin-bottom: 30px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--cinza-claro);
+}
+
+.pagina-editar-servico .grupo-servico > input,
+.pagina-editar-servico .campo-valor,
+.pagina-editar-servico .campo-data {
+    height: 50px;
+}
+
+.pagina-editar-servico .campo-data {
+    position: relative;
+}
+
+.pagina-editar-servico .campo-data input {
+    padding: 0 50px 0 12px;
+}
+
+.pagina-editar-servico .calendario-servico {
+    width: 27px;
+    height: 27px;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.pagina-editar-servico .campo-data input[type="date"]::-webkit-calendar-picker-indicator {
+    width: 28px;
+    height: 28px;
+    position: absolute;
+    right: 10px;
+    display: block;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.pagina-editar-servico .campo-descricao textarea {
+    height: 175px;
+}
+
+.pagina-editar-servico .botoes-servico {
+    margin-top: 30px;
+}
+
+/* TABLET */
+@media (min-width: 767px) and (max-width: 1023px) {
+    .pagina-editar-servico .card-servico {
+        padding: 20px;
+    }
+
+    .pagina-editar-servico .cabecalho-servico {
+        margin-bottom: 26px;
+        padding-bottom: 18px;
+    }
+
+    .pagina-editar-servico .campo-descricao textarea {
+        height: 160px;
+    }
+
+    .pagina-editar-servico .botoes-servico {
+        margin-top: 26px;
+    }
+}
+
+/* CELULAR - BASE */
+@media (max-width: 766px) {
+    .pagina-editar-servico {
+        background-color: var(--branco);
+    }
+
+    .pagina-editar-servico .titulo-servico {
+        padding: 4px 0 10px;
+    }
+
+    .pagina-editar-servico .titulo-servico > p:first-child {
+        display: none;
+    }
+
+    .pagina-editar-servico .titulo-servico h1 {
+        margin: 0;
+        font-size: 25px;
+        line-height: 29px;
+    }
+
+    .pagina-editar-servico .titulo-servico > p:last-child {
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 14px;
+    }
+
+    .pagina-editar-servico .card-servico {
+        min-height: calc(100vh - 205px);
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 7px;
+        box-shadow: 0 3px 4px rgba(0, 0, 0, 0.18);
+    }
+
+    .pagina-editar-servico .cabecalho-servico {
+        display: none;
+    }
+
+    .pagina-editar-servico .card-servico form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pagina-editar-servico .grupo-servico label,
+    .pagina-editar-servico .grupo-descricao label {
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+
+    .pagina-editar-servico .grupo-servico > input {
+        height: 48px;
+        padding: 7px 9px;
+        border-radius: 6px;
+        font-size: 11px;
+        line-height: 14px;
+    }
+
+    .pagina-editar-servico .linha-servico {
+        margin-top: 18px;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .pagina-editar-servico .linha-servico .grupo-servico {
+        width: 100%;
+    }
+
+    .pagina-editar-servico .campo-valor,
+    .pagina-editar-servico .campo-data {
+        height: 38px;
+        border-radius: 6px;
+    }
+
+    .pagina-editar-servico .campo-valor strong {
+        width: 40px;
+        flex: 0 0 40px;
+        font-size: 10px;
+    }
+
+    .pagina-editar-servico .campo-valor input {
+        padding: 0 9px;
+        font-size: 11px;
+    }
+
+    .pagina-editar-servico .campo-data input {
+        padding: 0 38px 0 9px;
+        font-size: 11px;
+    }
+
+    .pagina-editar-servico .calendario-servico {
+        width: 22px;
+        height: 22px;
+        right: 7px;
+    }
+
+    .pagina-editar-servico .campo-data input[type="date"]::-webkit-calendar-picker-indicator {
+        width: 22px;
+        height: 22px;
+        right: 6px;
+    }
+
+    .pagina-editar-servico .grupo-descricao {
+        margin-top: 18px;
+    }
+
+    .pagina-editar-servico .campo-descricao textarea {
+        height: 118px;
+        padding: 10px 10px 22px 36px;
+        border-radius: 6px;
+        font-size: 11px;
+        line-height: 14px;
+    }
+
+    .pagina-editar-servico .icone-descricao {
+        width: 18px;
+        height: 18px;
+        top: 9px;
+        left: 9px;
+    }
+
+    .pagina-editar-servico .contador-descricao {
+        right: 5px;
+        bottom: 5px;
+        font-size: 7px;
+    }
+
+    .pagina-editar-servico .botoes-servico {
+        margin-top: auto;
+        padding-top: 18px;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pagina-editar-servico .cancelar-servico,
+    .pagina-editar-servico .registrar-servico {
+        width: 100%;
+        height: 38px;
+        border-radius: 6px;
+        font-size: 11px;
+    }
+
+    .pagina-editar-servico .registrar-servico {
+        order: 1;
+    }
+
+    .pagina-editar-servico .cancelar-servico {
+        order: 2;
+    }
+}
+
+/* MOBILE L */
+@media (min-width: 375px) and (max-width: 424px) {
+    .pagina-editar-servico .titulo-servico h1 {
+        font-size: 25px;
+    }
+
+    .pagina-editar-servico .card-servico {
+        min-height: calc(100vh - 205px);
+    }
+}
+
+/* MOBILE M */
+@media (min-width: 320px) and (max-width: 374px) {
+    .pagina-editar-servico .titulo-servico h1 {
+        font-size: 23px;
+        line-height: 27px;
+    }
+
+    .pagina-editar-servico .titulo-servico > p:last-child {
+        font-size: 10px;
+        line-height: 13px;
+    }
+
+    .pagina-editar-servico .card-servico {
+        min-height: calc(100vh - 195px);
+        padding: 8px;
+    }
+
+    .pagina-editar-servico .grupo-servico label,
+    .pagina-editar-servico .grupo-descricao label {
+        font-size: 12px;
+    }
+
+    .pagina-editar-servico .grupo-servico > input {
+        height: 47px;
+        padding: 7px 8px;
+        font-size: 10px;
+        line-height: 13px;
+    }
+
+    .pagina-editar-servico .linha-servico {
+        margin-top: 17px;
+        gap: 17px;
+    }
+
+    .pagina-editar-servico .campo-valor,
+    .pagina-editar-servico .campo-data {
+        height: 37px;
+    }
+
+    .pagina-editar-servico .campo-valor strong {
+        width: 38px;
+        flex-basis: 38px;
+        font-size: 9px;
+    }
+
+    .pagina-editar-servico .campo-valor input,
+    .pagina-editar-servico .campo-data input {
+        font-size: 10px;
+    }
+
+    .pagina-editar-servico .calendario-servico {
+        width: 21px;
+        height: 21px;
+    }
+
+    .pagina-editar-servico .grupo-descricao {
+        margin-top: 17px;
+    }
+
+    .pagina-editar-servico .campo-descricao textarea {
+        height: 114px;
+        padding: 9px 9px 21px 34px;
+        font-size: 10px;
+        line-height: 13px;
+    }
+
+    .pagina-editar-servico .icone-descricao {
+        width: 17px;
+        height: 17px;
+    }
+
+    .pagina-editar-servico .botoes-servico {
+        padding-top: 16px;
+    }
+
+    .pagina-editar-servico .cancelar-servico,
+    .pagina-editar-servico .registrar-servico {
+        height: 37px;
+        font-size: 10px;
+    }
+}
+
+/* MOBILE S */
+@media (max-width: 319px) {
+    .pagina-editar-servico .titulo-servico h1 {
+        font-size: 20px;
+        line-height: 23px;
+    }
+
+    .pagina-editar-servico .titulo-servico > p:last-child {
+        font-size: 9px;
+        line-height: 12px;
+    }
+
+    .pagina-editar-servico .card-servico {
+        min-height: calc(100vh - 185px);
+        padding: 7px;
+    }
+
+    .pagina-editar-servico .grupo-servico label,
+    .pagina-editar-servico .grupo-descricao label {
+        font-size: 11px;
+    }
+
+    .pagina-editar-servico .grupo-servico > input {
+        height: 44px;
+        padding: 6px 7px;
+        font-size: 9px;
+        line-height: 12px;
+    }
+
+    .pagina-editar-servico .linha-servico {
+        margin-top: 15px;
+        gap: 15px;
+    }
+
+    .pagina-editar-servico .campo-valor,
+    .pagina-editar-servico .campo-data {
+        height: 35px;
+    }
+
+    .pagina-editar-servico .campo-valor strong {
+        width: 35px;
+        flex-basis: 35px;
+        font-size: 8px;
+    }
+
+    .pagina-editar-servico .campo-valor input,
+    .pagina-editar-servico .campo-data input {
+        font-size: 9px;
+    }
+
+    .pagina-editar-servico .calendario-servico {
+        width: 19px;
+        height: 19px;
+        right: 6px;
+    }
+
+    .pagina-editar-servico .grupo-descricao {
+        margin-top: 15px;
+    }
+
+    .pagina-editar-servico .campo-descricao textarea {
+        height: 108px;
+        padding: 8px 8px 20px 31px;
+        font-size: 9px;
+        line-height: 12px;
+    }
+
+    .pagina-editar-servico .icone-descricao {
+        width: 16px;
+        height: 16px;
+        top: 8px;
+        left: 8px;
+    }
+
+    .pagina-editar-servico .contador-descricao {
+        font-size: 6px;
+    }
+
+    .pagina-editar-servico .botoes-servico {
+        padding-top: 14px;
+        gap: 7px;
+    }
+
+    .pagina-editar-servico .cancelar-servico,
+    .pagina-editar-servico .registrar-servico {
+        height: 35px;
+        font-size: 9px;
+    }
+}
