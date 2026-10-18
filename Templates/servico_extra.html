@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro_servico_extra.css') }}">
 </head>
 <body class="pagina-sistema">
-
     <aside class="menu-lateral">
         <a href="{{ url_for('dashboard') }}" class="seta-voltar">‹</a>
         <img class="logo-perfil" src="{{ url_for('static', filename='uploads/logo-horizontal.png') }}" alt="Bolso em Dia">
@@ -100,6 +99,7 @@
                 <div class="icone-servico">
                     <img src="{{ url_for('static', filename='uploads/calendar-verde.png') }}" alt="">
                 </div>
+
                 <div>
                     <h2>Registrar Serviço Extra</h2>
                     <p>Preencha as informações abaixo para registrar um serviço extra.</p>
@@ -135,7 +135,7 @@
                 </div>
 
                 <div class="grupo-descricao">
-                    <label>Descrição do serviço <span>*</span></label>
+                    <label>Descrição da receita <span>*</span></label>
 
                     <div class="campo-descricao">
                         <img class="icone-descricao" src="{{ url_for('static', filename='uploads/document-cinza.png') }}" alt="">
@@ -153,17 +153,12 @@
     </main>
 
     <script>
-        // pega o campo de descrição
-        const descricao = document.querySelector('textarea');
+        const descricao = document.querySelector('textarea')
+        const contador = document.querySelector('.contador-descricao')
 
-        // pega o contador de caracteres
-        const contador = document.querySelector('.contador-descricao');
-
-        // atualiza o contador enquanto o usuário digita
         descricao.addEventListener('input', function() {
-            contador.textContent = descricao.value.length + '/500';
-        });
+            contador.textContent = descricao.value.length + '/500'
+        })
     </script>
-
 </body>
 </html>
