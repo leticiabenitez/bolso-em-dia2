@@ -179,7 +179,6 @@
                         {% for rendimento in rendimentos %}
                             <tr class="item-rendimento {% if rendimento['status'] == 0 %}rendimento-inativo{% endif %}" data-data="{{ rendimento['data'] }}" data-categoria="{{ rendimento['categoria'] }}" data-descricao="{{ rendimento['descricao'] }}" data-valor="{{ rendimento['valor'] }}" data-status="{{ rendimento['status'] }}" data-tipo="{{ rendimento['tipo'] }}">
                                 <td>{{ rendimento['data'] }}</td>
-
                                 <td>
                                     {% if rendimento['tipo'] == 'dia_trabalhado' %}
                                         <div class="categoria-rendimento dia-trabalhado">
@@ -205,10 +204,8 @@
                                         {% endif %}
                                     {% endif %}
                                 </td>
-
                                 <td>{{ rendimento['descricao'] }}</td>
                                 <td class="valor-rendimento">{{ "R$ %.2f"|format(rendimento['valor']) }}</td>
-
                                 <td>
                                     {% if rendimento['status'] == 1 %}
                                         <div class="acoes-rendimento">
@@ -240,7 +237,6 @@
                                             <summary>
                                                 <img src="{{ url_for('static', filename='uploads/3-pontos-vertical.png') }}" alt="">
                                             </summary>
-
                                             <div class="menu-acoes-mobile">
                                                 {% if rendimento['tipo'] == 'movimentacao' %}
                                                     <a href="{{ url_for('editar_movimentacao', id=rendimento['id']) }}">
@@ -312,6 +308,7 @@
             <div class="opcoes-mais-mobile">
                 <a href="{{ url_for('dia_trabalhado') }}">Dia Trabalhado</a>
                 <a href="{{ url_for('servico_extra') }}">Serviço Extra</a>
+                <a href="{{ url_for('todas_categorias') }}">Categorias</a>
                 <a href="#">Relatórios</a>
                 <a href="#">Histórico Semanal</a>
             </div>
