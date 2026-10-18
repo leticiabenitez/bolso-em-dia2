@@ -17,8 +17,6 @@ var tipoSelecionado = "todos"
 var ordemData = "desc"
 var ordemValor = "desc"
 
-
-// adiciona as categorias existentes no filtro
 itens.forEach(function (item) {
     var nomeCategoria = item.dataset.categoria
     var opcoes = filtroCategoria.querySelectorAll("option")
@@ -32,14 +30,11 @@ itens.forEach(function (item) {
 
     if (categoriaExiste == false) {
         var novaOpcao = document.createElement("option")
-
         novaOpcao.value = nomeCategoria
         novaOpcao.textContent = nomeCategoria
-
         filtroCategoria.appendChild(novaOpcao)
     }
 })
-
 
 function filtrarRendimentos() {
     var valorBusca = buscarRendimento.value.toLowerCase()
@@ -75,35 +70,29 @@ function filtrarRendimentos() {
             tipoSelecionado == "todos" ||
             tipo == tipoSelecionado
 
-
         if (mostrarBusca && mostrarMes && mostrarCategoria && mostrarStatus && mostrarTipo) {
-            item.style.display = "table-row"
+            item.style.display = ""
         } else {
             item.style.display = "none"
         }
     })
 }
 
-
 buscarRendimento.addEventListener("input", function () {
     filtrarRendimentos()
 })
-
 
 filtroMes.addEventListener("change", function () {
     filtrarRendimentos()
 })
 
-
 filtroCategoria.addEventListener("change", function () {
     filtrarRendimentos()
 })
 
-
 filtroStatus.addEventListener("change", function () {
     filtrarRendimentos()
 })
-
 
 tipoTodos.addEventListener("click", function () {
     tipoSelecionado = "todos"
@@ -116,7 +105,6 @@ tipoTodos.addEventListener("click", function () {
     filtrarRendimentos()
 })
 
-
 tipoReceitas.addEventListener("click", function () {
     tipoSelecionado = "movimentacao"
 
@@ -127,7 +115,6 @@ tipoReceitas.addEventListener("click", function () {
 
     filtrarRendimentos()
 })
-
 
 tipoDias.addEventListener("click", function () {
     tipoSelecionado = "dia_trabalhado"
@@ -140,7 +127,6 @@ tipoDias.addEventListener("click", function () {
     filtrarRendimentos()
 })
 
-
 tipoServicos.addEventListener("click", function () {
     tipoSelecionado = "servico_extra"
 
@@ -151,7 +137,6 @@ tipoServicos.addEventListener("click", function () {
 
     filtrarRendimentos()
 })
-
 
 ordenarData.addEventListener("click", function () {
     var tabela = document.querySelector("#tabela-rendimentos")
@@ -179,7 +164,6 @@ ordenarData.addEventListener("click", function () {
         ordemData = "desc"
     }
 })
-
 
 ordenarValor.addEventListener("click", function () {
     var tabela = document.querySelector("#tabela-rendimentos")
