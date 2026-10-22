@@ -120,10 +120,10 @@
                         <div class="item-categoria" data-nome="{{ item[1] }}" data-tipo="{{ item[2] }}" data-status="{{ item[5] }}">
                             <div class="informacoes-categoria">
                                 <div class="icone-item-categoria" style="background-color: #{{ item[3] }}20;">
-                                    {% if item[1] == 'Dia Trabalhado' %}
-                                        <img src="{{ url_for('static', filename='uploads/perfil-dia-trabalhado.png') }}" alt="Dia Trabalhado">
-                                    {% elif item[1] == 'Serviço Extra' %}
+                                    {% if item[0] == 1 %}
                                         <img src="{{ url_for('static', filename='uploads/perfil-servico-extra.png') }}" alt="Serviço Extra">
+                                    {% elif item[0] == 2 %}
+                                        <img src="{{ url_for('static', filename='uploads/perfil-dia-trabalhado.png') }}" alt="Dia Trabalhado">
                                     {% elif item[4] %}
                                         <img src="{{ url_for('static', filename='svg/' ~ item[4]) }}" alt="">
                                     {% else %}
