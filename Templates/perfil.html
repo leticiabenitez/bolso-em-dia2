@@ -175,12 +175,29 @@
                     </div>
 
                     <div class="botoes-perfil">
-                        <button type="button" class="botao-excluir">Excluir Perfil</button>
+                        <button type="button" class="abrir-modal-exclusao botao-excluir" data-url="{{ url_for('excluir_usuario') }}" >Excluir Perfil</button>
                         <a class="botao-editar" href="{{ url_for('editar_usuario') }}">Editar Perfil</a>
                     </div>
                 </div>
             </section>
         </main>
     </div>
+
+    <div class="fundo-modal-exclusao" id="modal-exclusao">
+        <div class="modal-exclusao">
+            <h2>Confirmar Exclusão</h2>
+            <p>Tem certeza que deseja excluir perfil?</p>
+
+            <div class="botoes-modal-exclusao">
+                <form id="form-exclusao" method="POST">
+                    <button type="submit" class="confirmar-exclusao">Confirmar</button>
+                </form>
+
+                <button type="button" class="cancelar-exclusao" id="cancelar-exclusao">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/modal_exclusao.js') }}"></script>
 </body>
 </html>
