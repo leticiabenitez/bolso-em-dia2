@@ -175,17 +175,17 @@
 
                         <div class="campo-perfil">
                             <img src="static/uploads/perfil-calendario-campo.png" alt="">
-                            <input type="data" name="data_nasc" value="{{ usuario[2] }}">
+                            <input type="date" name="data_nasc" value="{{ usuario[2].strftime('%d/%m/%Y') }} ">
                         </div>
 
                         <div class="campo-perfil">
                             <img src="static/uploads/perfil-telefone-campo.png" alt="">
-                            <input type="text" name="telefone" value="{{ usuario[3] }}">
+                            <input type="text" name="telefone" value="{{ usuario[3] }} " data-mask="(00)00000-0000" >
                         </div>
 
                         <div class="campo-perfil">
                             <img src="static/uploads/perfil-cpf-campo.png" alt="">
-                            <input type="text" name="cpf" value="{{ usuario[4] }}">
+                            <input type="text" name="cpf" value="{{ usuario[4] }}" data-mask="000.000.000-00" >
                         </div>
 
                         <div class="campo-perfil">
