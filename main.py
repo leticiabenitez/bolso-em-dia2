@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
+database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -657,7 +657,7 @@ def editar_usuario():
                 return redirect(url_for('pagina_cadastro'))
 
             email = request.form['email']
-            data_nasc = datetime.strptime(request.form['data_nasc'], '%d/%m/%Y').date()
+            data_nasc = request.form['data_nasc']
             telefone = request.form['telefone']
             cpf = request.form['cpf']
             senha_nova = request.form['senha']
@@ -960,6 +960,10 @@ def cadastrar_servico_extra():
     data = request.form['data']
     descricao = request.form['descricao'].strip()
 
+    if len(descricao) > 250:
+        flash('A descrição tem que ter no máximo 250 caracteres!', 'error')
+        return redirect(url_for('servico_extra'))
+
     data_atual = datetime.now().date()
 
     if data > data_atual.strftime('%Y-%m-%d'):
@@ -1067,6 +1071,10 @@ def editar_servico_extra(id):
             valor = float(request.form['valor'])
             data_servico = request.form['data_servico']
             descricao = request.form['descricao'].strip()
+
+            if len(descricao) > 250:
+                flash('A descrição tem que ter no máximo 250 caracteres!', 'error')
+                return redirect(url_for('editar_servico_extra'))
 
             if data_servico < data_atual.strftime('%Y-%m-%d'):
                 flash('Não é possível alterar para uma data retroativa!', 'error')
@@ -1401,6 +1409,10 @@ def cadastrar_movimentacao():
     categoria = int(request.form['categoria'])
     descricao = request.form['descricao'].strip()
 
+    if len(descricao) > 250:
+        flash('A descrição tem que ter no máximo 250 caracteres!', 'error')
+        return redirect(url_for('movimentacao'))
+
     if valor <= 0:
         flash('O valor deve ser maior que zero!', 'error')
         return redirect(url_for('movimentacao'))
@@ -1605,6 +1617,10 @@ def editar_movimentacao(id):
 
             descricao = request.form['descricao'].strip()
 
+            if len(descricao) > 250:
+                flash('A descrição tem que ter no máximo 250 caracteres!', 'error')
+                return redirect(url_for('editar_movimentacao'))
+
             if valor <= 0:
                 flash('O valor deve ser maior que zero!', 'error')
                 return redirect(url_for('editar_movimentacao', id=id))
@@ -1783,9 +1799,18 @@ def rendimentos():
                 'tipo': 'servico_extra'
             })
 
+        def pegar_data(rendimento):
+            return rendimento['data']
+
+        # a sort organiza todos os elementos em uma lista em ordem crescente (numérica ou alfabética)
         rendimentos.sort(
-            key=lambda r: r['data'],
-            reverse=True
+            # como queremos ordenar por data, utilizamos a key
+            # key define qual critério será utilizado pra organizar a lista, no caso a data
+            key= pegar_data,
+
+            # reverse para determinar o sentido da ordenação
+            # ordenação decrescente: da maior data para a menor data, ou seja, do mais recente para o mais antigo
+            reverse= True
         )
 
         return render_template(
