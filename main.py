@@ -90,7 +90,7 @@ def cadastrar_usuario():
         flash('O campo "E-mail" não pode ficar vazio!', 'error')
         return redirect(url_for('pagina_cadastro'))
 
-    data_nasc = request.form['data_nasc']
+    data_nasc = datetime.strptime(request.form['data_nasc'], '%d/%m/%Y').date()
     telefone = request.form['telefone'].strip().replace("(","").replace(")","").replace("-","")
 
     if not telefone:
@@ -658,8 +658,8 @@ def editar_usuario():
 
             email = request.form['email']
             data_nasc = request.form['data_nasc']
-            telefone = request.form['telefone']
-            cpf = request.form['cpf']
+            telefone = request.form['telefone'].replace("(", "").replace(")", "").replace("-", "").replace(".", "").replace(" ", "")
+            cpf = request.form['cpf'].replace(".", "").replace("-", "").replace(" ", "")
             senha_nova = request.form['senha']
             valor_diaria = float(request.form['valor_diaria'])
             adicional = float(request.form['adicional'])
