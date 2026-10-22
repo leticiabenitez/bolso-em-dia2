@@ -108,6 +108,8 @@
             </div>
 
             <form action="{{ url_for('cadastrar_movimentacao') }}" method="POST">
+                <input type="hidden" name="origem" value="{{ origem }}">
+
                 <div class="linha-campos">
                     <div class="grupo-movimentacao valor-movimentacao">
                         <label>Valor recebido <span>*</span></label>
@@ -166,13 +168,13 @@
 
                     <div class="campo-descricao">
                         <img class="icone-descricao" src="{{ url_for('static', filename='uploads/document-cinza.png') }}" alt="">
-                        <textarea name="descricao" maxlength="500" placeholder="Descreva os detalhes da movimentação..."></textarea>
-                        <span class="contador-descricao">0/500</span>
+                        <textarea name="descricao" maxlength="250" placeholder="Descreva os detalhes da movimentação..."></textarea>
+                        <span class="contador-descricao">0/250</span>
                     </div>
                 </div>
 
                 <div class="botoes-movimentacao">
-                    <a href="{{ url_for('dashboard') }}" class="cancelar-movimentacao">Cancelar</a>
+                    <a href="{{ url_for(origem) }}" class="cancelar-movimentacao">Cancelar</a>
                     <button type="submit" class="registrar-movimentacao">Registrar</button>
                 </div>
             </form>
@@ -225,7 +227,7 @@
         })
 
         descricao.addEventListener('input', function() {
-            contador.textContent = descricao.value.length + '/500'
+            contador.textContent = descricao.value.length + '/250'
         })
     </script>
 </body>

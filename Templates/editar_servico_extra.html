@@ -114,8 +114,8 @@
                     <label>Descrição da receita</label>
                     <div class="campo-descricao">
                         <img class="icone-descricao" src="{{ url_for('static', filename='uploads/document-cinza.png') }}" alt="">
-                        <textarea name="descricao" maxlength="500" placeholder="Descreva os detalhes do serviço extra...">{{ servico[3] or '' }}</textarea>
-                        <span class="contador-descricao">{{ (servico[3] or '') | length }}/500</span>
+                        <textarea name="descricao" maxlength="250" placeholder="Descreva os detalhes do serviço extra...">{{ servico[3] or '' }}</textarea>
+                        <span class="contador-descricao">{{ (servico[3] or '') | length }}/250</span>
                     </div>
                 </div>
                 <div class="botoes-servico">
@@ -130,7 +130,7 @@
         const contador = document.querySelector('.contador-descricao')
 
         descricao.addEventListener('input', function() {
-            contador.textContent = descricao.value.length + '/500'
+            contador.textContent = descricao.value.length + '/250'
         })
     </script>
 </body>
