@@ -200,18 +200,17 @@ def pagina_login():
 @app.route('/login', methods=['POST'])
 def login():
 
-    # .replace("(", "").replace(")", "").replace("-", "").replace(".", "")
     login = request.form['login']
     senha = request.form['senha']
 
     cursor = con.cursor()
 
     try:
-
-        if len(login) > 15:
+        if '@' in login:
             cursor.execute("""SELECT ID_USUARIO, SENHA, COALESCE(STATUS, 1), COALESCE(TENTATIVAS, 0) FROM USUARIO WHERE upper(EMAIL) = ?""", (login.upper(),))
         else:
-            cursor.execute("""SELECT ID_USUARIO, SENHA, COALESCE(STATUS, 1), COALESCE(TENTATIVAS, 0) FROM USUARIO WHERE upper(EMAIL) = ? OR CPF = ? OR TELEFONE = ?""", (login.upper(), login, login,))
+            login = login.replace("(", "").replace(")", "").replace("-", "").replace(".", "").replace(" ", "")
+            cursor.execute("""SELECT ID_USUARIO, SENHA, COALESCE(STATUS, 1), COALESCE(TENTATIVAS, 0) FROM USUARIO WHERE CPF = ? OR TELEFONE = ?""", (login, login,))
 
         usuario = cursor.fetchone()
 
