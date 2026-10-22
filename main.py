@@ -90,7 +90,7 @@ def cadastrar_usuario():
         flash('O campo "E-mail" não pode ficar vazio!', 'error')
         return redirect(url_for('pagina_cadastro'))
 
-    data_nasc = datetime.strptime(request.form['data_nasc'], '%d/%m/%Y').date()
+    data_nasc = request.form['data_nasc']
     telefone = request.form['telefone'].strip().replace("(","").replace(")","").replace("-","")
 
     if not telefone:
