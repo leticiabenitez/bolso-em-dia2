@@ -273,10 +273,12 @@
     font-weight: 600;
 }
 
+
 .categoria-rendimento img {
     width: 13px;
     height: 13px;
     object-fit: contain;
+    flex-shrink: 0;
 }
 
 .icone-categoria-rendimento {
