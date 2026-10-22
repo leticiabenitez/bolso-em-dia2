@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br" dir="ltr">
 <head>
@@ -113,7 +114,7 @@
 
                         <div class="campo-valor">
                             <strong>R$</strong>
-                            <input type="number" name="valor" min="0.01" step="0.01" placeholder="0,00" required>
+                            <input type="text" name="valor" id="valor" inputmode="numeric" placeholder="0,00" required>
                         </div>
                     </div>
 
@@ -131,11 +132,11 @@
                         <label>Data <span>*</span></label>
 
                         <div class="campo-data">
-                            <div class="icone-campo">
+                            <div class="icone-campo" onclick="document.getElementById('data-movimentacao').showPicker()" style="cursor: pointer;">
                                 <img src="{{ url_for('static', filename='uploads/calendar-cinza.png') }}" alt="">
                             </div>
 
-                            <input type="date" name="data" required>
+                            <input type="date" name="data" id="data-movimentacao" required>
                         </div>
                     </div>
 
@@ -178,7 +179,23 @@
         </section>
     </main>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
     <script>
+        $("#valor").maskMoney({
+            thousands: ".",
+            decimal: ",",
+            precision: 2,
+            allowNegative: false,
+            allowZero: false
+        })
+
+        $("#valor").closest("form").on("submit", function() {
+            var valor = $("#valor").maskMoney("unmasked")[0]
+            $("#valor").val(valor.toFixed(2))
+        })
+
         const tipo = document.getElementById('tipo')
         const categoria = document.getElementById('categoria')
         const descricao = document.querySelector('textarea')
