@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Borella\Downloads\bolso-em-dia-main\BANCO.FDB"
+database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -200,6 +200,7 @@ def pagina_login():
 @app.route('/login', methods=['POST'])
 def login():
 
+    # .replace("(", "").replace(")", "").replace("-", "").replace(".", "")
     login = request.form['login']
     senha = request.form['senha']
 
