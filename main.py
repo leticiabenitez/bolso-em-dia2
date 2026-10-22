@@ -657,7 +657,7 @@ def editar_usuario():
                 return redirect(url_for('pagina_cadastro'))
 
             email = request.form['email']
-            data_nasc = request.form['data_nasc']
+            data_nasc = datetime.strptime(request.form['data_nasc'], '%d/%m/%Y').date()
             telefone = request.form['telefone']
             cpf = request.form['cpf']
             senha_nova = request.form['senha']
