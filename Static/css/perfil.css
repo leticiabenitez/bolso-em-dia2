@@ -870,3 +870,8 @@
         font-size: 11px;
     }
 }
+
+
+.campo-perfil input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+}
