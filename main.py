@@ -1828,6 +1828,49 @@ def rendimentos():
         cursor.close()
 
 
+@app.route('/excluir_usuario', methods=['POST'])
+def excluir_usuario():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""SELECT 1 FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        if not cursor.fetchone():
+            session.clear()
+            flash('Usuário não encontrado!', 'error')
+            return redirect(url_for('pagina_login'))
+
+        cursor.execute("""DELETE FROM HISTORICO_SENHA WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        cursor.execute("""DELETE FROM MOVIMENTACAO WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        cursor.execute("""DELETE FROM DIA_TRABALHADO WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        cursor.execute("""DELETE FROM SERVICO_EXTRA WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        cursor.execute("""DELETE FROM CATEGORIA WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        cursor.execute("""DELETE FROM USUARIO WHERE ID_USUARIO = ?""", (id_usuario,))
+
+        con.commit()
+        session.clear()
+        flash('Perfil excluído com sucesso!', 'success')
+        return redirect(url_for('pagina_login'))
+
+    except Exception as e:
+        con.rollback()
+        flash(f'Ocorreu um erro: {e}', 'error')
+        return redirect(url_for('perfil'))
+
+    finally:
+        cursor.close()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
