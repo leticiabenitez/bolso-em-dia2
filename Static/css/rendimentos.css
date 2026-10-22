@@ -251,7 +251,7 @@
 }
 
 .tabela-rendimentos td {
-    height: 46px;
+    height: 56px;
     padding: 0 18px;
     color: var(--cinza-escuro);
     font-size: 12px;
@@ -306,6 +306,21 @@
     color: #0068B5;
 }
 
+.status-rendimento {
+    margin-top: 4px;
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.status-rendimento.ativo {
+    color: var(--verde-escuro);
+}
+
+.status-rendimento.inativo {
+    color: var(--vermelho);
+}
+
 .valor-rendimento {
     color: var(--verde-medio) !important;
     font-weight: 700;
@@ -316,7 +331,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+    gap: 12px;
+}
+
+.acoes-rendimento form {
+    margin: 0;
 }
 
 .acoes-rendimento a,
@@ -336,21 +355,31 @@
     object-fit: contain;
 }
 
+.acoes-rendimento .inativar-rendimento,
+.acoes-rendimento .ativar-rendimento {
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.acoes-rendimento .inativar-rendimento {
+    background-color: var(--branco);
+    color: var(--vermelho);
+    border: 1px solid var(--vermelho);
+}
+
+.acoes-rendimento .ativar-rendimento {
+    background-color: var(--verde-escuro);
+    color: var(--branco);
+    border: 1px solid var(--verde-escuro);
+}
+
 .acoes-rendimento-mobile {
     display: none;
-}
-
-.status-inativo {
-    padding: 4px 9px;
-    background-color: var(--vermelho-clarinho);
-    color: var(--vermelho);
-    border-radius: 12px;
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.rendimento-inativo {
-    opacity: 0.6;
 }
 
 .menu-mobile-rendimentos {
@@ -419,13 +448,24 @@
         font-size: 9px;
     }
 
+    .status-rendimento {
+        font-size: 9px;
+    }
+
     .acoes-rendimento {
-        gap: 10px;
+        gap: 8px;
     }
 
     .acoes-rendimento img {
         width: 18px;
         height: 18px;
+    }
+
+    .acoes-rendimento .inativar-rendimento,
+    .acoes-rendimento .ativar-rendimento {
+        height: 31px;
+        padding: 0 8px;
+        font-size: 9px;
     }
 }
 
@@ -587,7 +627,7 @@
 
     .tabela-rendimentos tr {
         width: 100%;
-        min-height: 66px;
+        min-height: 70px;
         padding: 9px 3px;
         position: relative;
         display: grid;
@@ -622,6 +662,9 @@
         grid-column: 1;
         grid-row: 2;
         align-self: start;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
     }
 
     .tabela-rendimentos td:nth-child(3) {
@@ -661,6 +704,11 @@
         width: 11px;
         height: 11px;
         flex: 0 0 11px;
+    }
+
+    .status-rendimento {
+        margin-top: 0;
+        font-size: 7px;
     }
 
     .acoes-rendimento {
@@ -705,6 +753,11 @@
         box-shadow: 0 3px 9px rgba(0, 0, 0, 0.18);
     }
 
+    .menu-acoes-mobile form {
+        width: 100%;
+        margin: 0;
+    }
+
     .menu-acoes-mobile a,
     .menu-acoes-mobile button {
         width: 100%;
@@ -730,6 +783,16 @@
         cursor: pointer;
     }
 
+    .menu-acoes-mobile .ativar-rendimento {
+        color: var(--verde-escuro);
+        font-weight: 700;
+    }
+
+    .menu-acoes-mobile .inativar-rendimento {
+        color: var(--vermelho);
+        font-weight: 700;
+    }
+
     .menu-acoes-mobile a:hover,
     .menu-acoes-mobile button:hover {
         background-color: var(--branco-acinzentado);
@@ -740,11 +803,6 @@
         width: 16px;
         height: 16px;
         object-fit: contain;
-    }
-
-    .status-inativo {
-        padding: 3px 5px;
-        font-size: 8px;
     }
 
     .menu-mobile-rendimentos {
@@ -899,6 +957,10 @@
     .categoria-rendimento {
         font-size: 8px;
     }
+
+    .status-rendimento {
+        font-size: 7px;
+    }
 }
 
 /* MOBILE M */
@@ -942,7 +1004,7 @@
     }
 
     .tabela-rendimentos tr {
-        min-height: 64px;
+        min-height: 68px;
         grid-template-columns: 92px minmax(0, 1fr) auto 15px;
         column-gap: 5px;
     }
@@ -962,6 +1024,10 @@
 
     .categoria-rendimento {
         max-width: 90px;
+        font-size: 7px;
+    }
+
+    .status-rendimento {
         font-size: 7px;
     }
 
@@ -1071,7 +1137,7 @@
     }
 
     .tabela-rendimentos tr {
-        min-height: 59px;
+        min-height: 63px;
         padding: 7px 1px;
         grid-template-columns: 82px minmax(0, 1fr) auto 14px;
         column-gap: 4px;
@@ -1101,6 +1167,10 @@
         width: 9px;
         height: 9px;
         flex-basis: 9px;
+    }
+
+    .status-rendimento {
+        font-size: 6px;
     }
 
     .menu-acoes-mobile {

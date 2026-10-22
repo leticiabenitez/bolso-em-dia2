@@ -294,7 +294,7 @@
 }
 
 .tabela-despesas td {
-    height: 46px;
+    height: 56px;
     padding: 0 18px;
     color: var(--cinza-escuro);
     font-size: 12px;
@@ -333,6 +333,21 @@
     mask-size: contain;
 }
 
+.status-despesa {
+    margin-top: 4px;
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.status-despesa.ativo {
+    color: var(--verde-escuro);
+}
+
+.status-despesa.inativo {
+    color: var(--vermelho);
+}
+
 .valor-tabela {
     color: var(--verde-medio) !important;
     font-weight: 700;
@@ -343,7 +358,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+    gap: 12px;
+}
+
+.acoes-despesa form {
+    margin: 0;
 }
 
 .acoes-despesa a,
@@ -363,21 +382,31 @@
     object-fit: contain;
 }
 
+.acoes-despesa .inativar-despesa,
+.acoes-despesa .ativar-despesa {
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.acoes-despesa .inativar-despesa {
+    background-color: var(--branco);
+    color: var(--vermelho);
+    border: 1px solid var(--vermelho);
+}
+
+.acoes-despesa .ativar-despesa {
+    background-color: var(--verde-escuro);
+    color: var(--branco);
+    border: 1px solid var(--verde-escuro);
+}
+
 .acoes-despesa-mobile {
     display: none;
-}
-
-.status-inativa {
-    padding: 4px 9px;
-    background-color: var(--vermelho-clarinho);
-    color: var(--vermelho);
-    border-radius: 12px;
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.despesa-inativa {
-    opacity: 0.6;
 }
 
 .menu-mobile-despesas {
@@ -508,18 +537,29 @@
         white-space: nowrap;
     }
 
+    .status-despesa {
+        font-size: 8px;
+    }
+
     .valor-tabela {
         font-size: 9px;
         white-space: nowrap;
     }
 
     .acoes-despesa {
-        gap: 6px;
+        gap: 5px;
     }
 
     .acoes-despesa img {
         width: 16px;
         height: 16px;
+    }
+
+    .acoes-despesa .inativar-despesa,
+    .acoes-despesa .ativar-despesa {
+        height: 29px;
+        padding: 0 6px;
+        font-size: 8px;
     }
 }
 
@@ -759,6 +799,9 @@
         grid-column: 1;
         grid-row: 2;
         align-self: start;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
     }
 
     .tabela-despesas td:nth-child(3) {
@@ -795,6 +838,11 @@
         width: 9px;
         height: 9px;
         flex: 0 0 9px;
+    }
+
+    .status-despesa {
+        margin-top: 0;
+        font-size: 7px;
     }
 
     .acoes-despesa {
@@ -836,6 +884,11 @@
         box-shadow: 0 3px 9px rgba(0, 0, 0, 0.18);
     }
 
+    .menu-acoes-despesa-mobile form {
+        width: 100%;
+        margin: 0;
+    }
+
     .menu-acoes-despesa-mobile a,
     .menu-acoes-despesa-mobile button {
         width: 100%;
@@ -862,6 +915,16 @@
         cursor: pointer;
     }
 
+    .menu-acoes-despesa-mobile .ativar-despesa {
+        color: var(--verde-escuro);
+        font-weight: 700;
+    }
+
+    .menu-acoes-despesa-mobile .inativar-despesa {
+        color: var(--vermelho);
+        font-weight: 700;
+    }
+
     .menu-acoes-despesa-mobile a:hover,
     .menu-acoes-despesa-mobile button:hover {
         background-color: var(--branco-acinzentado);
@@ -872,11 +935,6 @@
         width: 16px;
         height: 16px;
         object-fit: contain;
-    }
-
-    .status-inativa {
-        padding: 3px 5px;
-        font-size: 7px;
     }
 
     .menu-mobile-despesas {
@@ -999,6 +1057,10 @@
     .categoria-tabela {
         max-width: 98px;
     }
+
+    .status-despesa {
+        font-size: 7px;
+    }
 }
 
 /* MOBILE M */
@@ -1067,6 +1129,10 @@
 
     .categoria-tabela {
         max-width: 82px;
+        font-size: 6px;
+    }
+
+    .status-despesa {
         font-size: 6px;
     }
 
@@ -1238,6 +1304,10 @@
         width: 8px;
         height: 8px;
         flex-basis: 8px;
+    }
+
+    .status-despesa {
+        font-size: 5px;
     }
 
     .menu-acoes-despesa-mobile {
