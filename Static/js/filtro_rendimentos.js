@@ -1,22 +1,28 @@
+// Seleciona os campos de busca e filtros
 var buscarRendimento = document.querySelector("#buscar-rendimento")
 var filtroMes = document.querySelector("#filtro-mes")
 var filtroCategoria = document.querySelector("#filtro-categoria")
 var filtroStatus = document.querySelector("#filtro-status")
 
+// Seleciona os botões de tipo de rendimento
 var tipoTodos = document.querySelector("#tipo-todos")
 var tipoReceitas = document.querySelector("#tipo-receitas")
 var tipoDias = document.querySelector("#tipo-dias")
 var tipoServicos = document.querySelector("#tipo-servicos")
 
+// Seleciona os botões de ordenação
 var ordenarData = document.querySelector("#ordenar-data")
 var ordenarValor = document.querySelector("#ordenar-valor")
 
+// Obtém todos os rendimentos da página
 var itens = document.querySelectorAll(".item-rendimento")
 
+// Define os valores iniciais dos filtros e da ordenação
 var tipoSelecionado = "todos"
 var ordemData = "desc"
 var ordemValor = "desc"
 
+// Adiciona automaticamente as categorias encontradas nos rendimentos ao filtro
 itens.forEach(function (item) {
     var nomeCategoria = item.dataset.categoria
     var opcoes = filtroCategoria.querySelectorAll("option")
@@ -36,6 +42,7 @@ itens.forEach(function (item) {
     }
 })
 
+// Filtra os rendimentos conforme os campos selecionados
 function filtrarRendimentos() {
     var valorBusca = buscarRendimento.value.toLowerCase()
     var valorMes = filtroMes.value
@@ -49,27 +56,18 @@ function filtrarRendimentos() {
         var tipo = item.dataset.tipo
         var data = item.dataset.data
 
+        // Extrai o mês da data do rendimento
         var partesData = data.split("-")
         var mesRendimento = Number(partesData[1])
 
+        // Verifica se o rendimento atende a cada filtro
         var mostrarBusca = descricao.includes(valorBusca)
+        var mostrarMes = valorMes == "todos" || mesRendimento == valorMes
+        var mostrarCategoria = valorCategoria == "todos" || categoria == valorCategoria
+        var mostrarStatus = valorStatus == "todos" || status == valorStatus
+        var mostrarTipo = tipoSelecionado == "todos" || tipo == tipoSelecionado
 
-        var mostrarMes =
-            valorMes == "todos" ||
-            mesRendimento == valorMes
-
-        var mostrarCategoria =
-            valorCategoria == "todos" ||
-            categoria == valorCategoria
-
-        var mostrarStatus =
-            valorStatus == "todos" ||
-            status == valorStatus
-
-        var mostrarTipo =
-            tipoSelecionado == "todos" ||
-            tipo == tipoSelecionado
-
+        // Exibe o item somente se todos os filtros forem atendidos
         if (mostrarBusca && mostrarMes && mostrarCategoria && mostrarStatus && mostrarTipo) {
             item.style.display = ""
         } else {
@@ -78,6 +76,7 @@ function filtrarRendimentos() {
     })
 }
 
+// Atualiza os resultados quando a busca ou os filtros mudam
 buscarRendimento.addEventListener("input", function () {
     filtrarRendimentos()
 })
@@ -94,6 +93,7 @@ filtroStatus.addEventListener("change", function () {
     filtrarRendimentos()
 })
 
+// Mostra todos os tipos de rendimento
 tipoTodos.addEventListener("click", function () {
     tipoSelecionado = "todos"
 
@@ -105,6 +105,7 @@ tipoTodos.addEventListener("click", function () {
     filtrarRendimentos()
 })
 
+// Mostra apenas receitas comuns
 tipoReceitas.addEventListener("click", function () {
     tipoSelecionado = "movimentacao"
 
@@ -116,6 +117,7 @@ tipoReceitas.addEventListener("click", function () {
     filtrarRendimentos()
 })
 
+// Mostra apenas dias trabalhados
 tipoDias.addEventListener("click", function () {
     tipoSelecionado = "dia_trabalhado"
 
@@ -127,6 +129,7 @@ tipoDias.addEventListener("click", function () {
     filtrarRendimentos()
 })
 
+// Mostra apenas serviços extras
 tipoServicos.addEventListener("click", function () {
     tipoSelecionado = "servico_extra"
 
@@ -138,6 +141,7 @@ tipoServicos.addEventListener("click", function () {
     filtrarRendimentos()
 })
 
+// Ordena os rendimentos pela data
 ordenarData.addEventListener("click", function () {
     var tabela = document.querySelector("#tabela-rendimentos")
     var linhas = document.querySelectorAll(".item-rendimento")
@@ -154,10 +158,12 @@ ordenarData.addEventListener("click", function () {
         }
     })
 
+    // Reorganiza as linhas da tabela na nova ordem
     listaLinhas.forEach(function (linha) {
         tabela.appendChild(linha)
     })
 
+    // Alterna entre ordem crescente e decrescente
     if (ordemData == "desc") {
         ordemData = "asc"
     } else {
@@ -165,6 +171,7 @@ ordenarData.addEventListener("click", function () {
     }
 })
 
+// Ordena os rendimentos pelo valor
 ordenarValor.addEventListener("click", function () {
     var tabela = document.querySelector("#tabela-rendimentos")
     var linhas = document.querySelectorAll(".item-rendimento")
@@ -181,10 +188,12 @@ ordenarValor.addEventListener("click", function () {
         }
     })
 
+    // Reorganiza as linhas da tabela na nova ordem
     listaLinhas.forEach(function (linha) {
         tabela.appendChild(linha)
     })
 
+    // Alterna entre ordem crescente e decrescente
     if (ordemValor == "desc") {
         ordemValor = "asc"
     } else {
