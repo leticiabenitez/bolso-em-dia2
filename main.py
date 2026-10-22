@@ -313,6 +313,9 @@ def dashboard():
 
         anos_registrados = [ano_atual]
         ganhos_por_ano = {}
+        despesas_por_ano = {}
+        dias_por_ano = {}
+        pacotes_por_ano = {}
 
         cursor.execute("""SELECT DATA_TRABALHO, PACOTES_COLETADOS FROM DIA_TRABALHADO WHERE ID_USUARIO = ? AND STATUS = 1""", (id_usuario,))
         dias_trabalhados = cursor.fetchall()
@@ -320,19 +323,32 @@ def dashboard():
         for dia in dias_trabalhados:
             data_trabalho = dia[0]
             pacotes = dia[1] or 0
+            ano = data_trabalho.year
 
-            if data_trabalho.year not in anos_registrados:
-                anos_registrados.append(data_trabalho.year)
+            if ano not in anos_registrados:
+                anos_registrados.append(ano)
 
-            if data_trabalho.year == ano_atual:
-                dias_trabalhados_ano += 1
-                pacotes_ano += pacotes
+            if ano not in dias_por_ano:
+                dias_por_ano[ano] = 0
 
-            elif data_trabalho.year == ano_anterior:
-                dias_trabalhados_anterior += 1
-                pacotes_anterior += pacotes
+            if ano not in pacotes_por_ano:
+                pacotes_por_ano[ano] = 0
 
-        cursor.execute("""SELECT DATA_MOVIMENTACAO, VALOR, TIPO FROM MOVIMENTACAO WHERE ID_USUARIO = ? AND STATUS = 1""", (id_usuario,))
+            dias_por_ano[ano] += 1
+            pacotes_por_ano[ano] += pacotes
+
+        cursor.execute("""
+            SELECT
+                COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO),
+                M.VALOR,
+                M.TIPO
+            FROM MOVIMENTACAO M
+            LEFT JOIN DIA_TRABALHADO D
+            ON D.ID_DIA_TRABALHADO = M.ID_DIA_TRABALHADO
+            LEFT JOIN SERVICO_EXTRA S
+            ON S.ID_SERVICO_EXTRA = M.ID_SERVICO_EXTRA
+            WHERE M.ID_USUARIO = ? AND M.STATUS = 1
+        """, (id_usuario,))
         movimentacoes = cursor.fetchall()
 
         for movimentacao in movimentacoes:
@@ -349,102 +365,200 @@ def dashboard():
             if ano_movimentacao not in ganhos_por_ano:
                 ganhos_por_ano[ano_movimentacao] = [0] * 12
 
-            if tipo == 2:
+            if ano_movimentacao not in despesas_por_ano:
+                despesas_por_ano[ano_movimentacao] = [0] * 12
+
+            if tipo == 1:
+                despesas_por_ano[ano_movimentacao][mes] += valor
+
+            elif tipo == 2:
                 ganhos_por_ano[ano_movimentacao][mes] += valor
 
-            if data_movimentacao.year == ano_atual:
+        for ano in anos_registrados:
+            if ano not in ganhos_por_ano:
+                ganhos_por_ano[ano] = [0] * 12
 
-                if tipo == 1:
-                    despesas_ano += valor
-                    despesas_mensais[mes] += valor
+            if ano not in despesas_por_ano:
+                despesas_por_ano[ano] = [0] * 12
 
-                elif tipo == 2:
-                    ganho_ano += valor
-                    ganhos_mensais[mes] += valor
+            if ano not in dias_por_ano:
+                dias_por_ano[ano] = 0
 
-            elif data_movimentacao.year == ano_anterior:
-
-                if tipo == 1:
-                    despesas_anterior += valor
-
-                elif tipo == 2:
-                    ganho_anterior += valor
-
-        if ano_atual not in ganhos_por_ano:
-            ganhos_por_ano[ano_atual] = [0] * 12
+            if ano not in pacotes_por_ano:
+                pacotes_por_ano[ano] = 0
 
         anos_registrados.sort(reverse=True)
 
-        saldo_atual = ganho_ano - despesas_ano
-        saldo_anterior = ganho_anterior - despesas_anterior
+        dados_por_ano = {}
 
-        if dias_trabalhados_ano > 0:
-            media_ganho_dia = ganho_ano / dias_trabalhados_ano
-        else:
-            media_ganho_dia = 0
+        for ano in anos_registrados:
+            ano_anterior_selecionado = ano - 1
 
-        if dias_trabalhados_anterior > 0:
-            media_ganho_dia_anterior = ganho_anterior / dias_trabalhados_anterior
-        else:
-            media_ganho_dia_anterior = 0
+            ganhos_ano_selecionado = ganhos_por_ano.get(ano, [0] * 12)
+            despesas_ano_selecionado = despesas_por_ano.get(ano, [0] * 12)
 
-        if ganho_anterior > 0:
-            ganho_percentual = round(abs((ganho_ano - ganho_anterior) / ganho_anterior * 100))
-        else:
-            ganho_percentual = 0
+            ganhos_ano_anterior = ganhos_por_ano.get(ano_anterior_selecionado, [0] * 12)
+            despesas_ano_anterior = despesas_por_ano.get(ano_anterior_selecionado, [0] * 12)
 
-        if despesas_anterior > 0:
-            despesas_percentual = round(abs((despesas_ano - despesas_anterior) / despesas_anterior * 100))
-        else:
-            despesas_percentual = 0
+            ganho_ano_selecionado = sum(ganhos_ano_selecionado)
+            despesas_ano_selecionado = sum(despesas_ano_selecionado)
 
-        if saldo_anterior != 0:
-            saldo_percentual = round(abs((saldo_atual - saldo_anterior) / saldo_anterior * 100))
-        else:
-            saldo_percentual = 0
+            ganho_ano_anterior = sum(ganhos_ano_anterior)
+            despesas_ano_anterior = sum(despesas_ano_anterior)
 
-        if dias_trabalhados_anterior > 0:
-            dias_percentual = round(abs((dias_trabalhados_ano - dias_trabalhados_anterior) / dias_trabalhados_anterior * 100))
-        else:
-            dias_percentual = 0
+            saldo_ano_selecionado = ganho_ano_selecionado - despesas_ano_selecionado
+            saldo_ano_anterior = ganho_ano_anterior - despesas_ano_anterior
 
-        if pacotes_anterior > 0:
-            pacotes_percentual = round(abs((pacotes_ano - pacotes_anterior) / pacotes_anterior * 100))
-        else:
-            pacotes_percentual = 0
+            dias_ano_selecionado = dias_por_ano.get(ano, 0)
+            dias_ano_anterior = dias_por_ano.get(ano_anterior_selecionado, 0)
 
-        if media_ganho_dia_anterior > 0:
-            media_percentual = round(abs((media_ganho_dia - media_ganho_dia_anterior) / media_ganho_dia_anterior * 100))
-        else:
-            media_percentual = 0
+            pacotes_ano_selecionado = pacotes_por_ano.get(ano, 0)
+            pacotes_ano_anterior = pacotes_por_ano.get(ano_anterior_selecionado, 0)
 
-        ganho_subiu = ganho_ano > ganho_anterior
-        despesas_subiram = despesas_ano > despesas_anterior
-        saldo_subiu = saldo_atual > saldo_anterior
+            if dias_ano_selecionado > 0:
+                media_ano_selecionado = ganho_ano_selecionado / dias_ano_selecionado
+            else:
+                media_ano_selecionado = 0
 
-        dias_subiram = dias_trabalhados_ano > dias_trabalhados_anterior
-        pacotes_subiram = pacotes_ano > pacotes_anterior
-        media_subiu = media_ganho_dia > media_ganho_dia_anterior
+            if dias_ano_anterior > 0:
+                media_ano_anterior = ganho_ano_anterior / dias_ano_anterior
+            else:
+                media_ano_anterior = 0
 
-        saldo_negativo = saldo_atual < 0
+            if ganho_ano_anterior > 0:
+                ganho_percentual_selecionado = round(abs((ganho_ano_selecionado - ganho_ano_anterior) / ganho_ano_anterior * 100))
+            else:
+                ganho_percentual_selecionado = 0
 
-        mes_atual = datetime.now().month
-        saldo_mes_atual = ganhos_mensais[mes_atual - 1] - despesas_mensais[mes_atual - 1]
+            if despesas_ano_anterior > 0:
+                despesas_percentual_selecionado = round(abs((despesas_ano_selecionado - despesas_ano_anterior) / despesas_ano_anterior * 100))
+            else:
+                despesas_percentual_selecionado = 0
 
-        if mes_atual > 1:
-            saldo_mes_anterior = ganhos_mensais[mes_atual - 2] - despesas_mensais[mes_atual - 2]
-        else:
-            saldo_mes_anterior = 0
+            if saldo_ano_anterior != 0:
+                saldo_percentual_selecionado = round(abs((saldo_ano_selecionado - saldo_ano_anterior) / saldo_ano_anterior * 100))
+            else:
+                saldo_percentual_selecionado = 0
 
-        if saldo_mes_anterior != 0:
-            projecao_percentual = round(abs((saldo_mes_atual - saldo_mes_anterior) / saldo_mes_anterior * 100))
-        else:
-            projecao_percentual = 0
+            if dias_ano_anterior > 0:
+                dias_percentual_selecionado = round(abs((dias_ano_selecionado - dias_ano_anterior) / dias_ano_anterior * 100))
+            else:
+                dias_percentual_selecionado = 0
 
-        projecao_subiu = saldo_mes_atual > saldo_mes_anterior
+            if pacotes_ano_anterior > 0:
+                pacotes_percentual_selecionado = round(abs((pacotes_ano_selecionado - pacotes_ano_anterior) / pacotes_ano_anterior * 100))
+            else:
+                pacotes_percentual_selecionado = 0
 
-        saldo_projetado_mensal = saldo_atual / mes_atual
-        saldo_projetado_anual = saldo_projetado_mensal * 12
+            if media_ano_anterior > 0:
+                media_percentual_selecionado = round(abs((media_ano_selecionado - media_ano_anterior) / media_ano_anterior * 100))
+            else:
+                media_percentual_selecionado = 0
+
+            ganho_subiu_selecionado = ganho_ano_selecionado > ganho_ano_anterior
+            despesas_subiram_selecionado = despesas_ano_selecionado > despesas_ano_anterior
+            saldo_subiu_selecionado = saldo_ano_selecionado > saldo_ano_anterior
+
+            dias_subiram_selecionado = dias_ano_selecionado > dias_ano_anterior
+            pacotes_subiram_selecionado = pacotes_ano_selecionado > pacotes_ano_anterior
+            media_subiu_selecionado = media_ano_selecionado > media_ano_anterior
+
+            saldo_negativo_selecionado = saldo_ano_selecionado < 0
+
+            if ano == ano_atual:
+                mes_referencia = datetime.now().month
+            else:
+                mes_referencia = 12
+
+            saldo_mes_atual_selecionado = ganhos_por_ano[ano][mes_referencia - 1] - despesas_por_ano[ano][mes_referencia - 1]
+
+            if mes_referencia > 1:
+                saldo_mes_anterior_selecionado = ganhos_por_ano[ano][mes_referencia - 2] - despesas_por_ano[ano][mes_referencia - 2]
+            else:
+                saldo_mes_anterior_selecionado = 0
+
+            if saldo_mes_anterior_selecionado != 0:
+                projecao_percentual_selecionado = round(abs((saldo_mes_atual_selecionado - saldo_mes_anterior_selecionado) / saldo_mes_anterior_selecionado * 100))
+            else:
+                projecao_percentual_selecionado = 0
+
+            projecao_subiu_selecionado = saldo_mes_atual_selecionado > saldo_mes_anterior_selecionado
+
+            if ano == ano_atual:
+                meses_projecao = datetime.now().month
+            else:
+                meses_projecao = 12
+
+            saldo_projetado_mensal_selecionado = saldo_ano_selecionado / meses_projecao
+            saldo_projetado_anual_selecionado = saldo_projetado_mensal_selecionado * 12
+
+            dados_por_ano[ano] = {
+                'ganho_ano': ganho_ano_selecionado,
+                'despesas_ano': despesas_ano_selecionado,
+                'saldo_atual': saldo_ano_selecionado,
+
+                'ganho_percentual': ganho_percentual_selecionado,
+                'despesas_percentual': despesas_percentual_selecionado,
+                'saldo_percentual': saldo_percentual_selecionado,
+
+                'ganho_subiu': ganho_subiu_selecionado,
+                'despesas_subiram': despesas_subiram_selecionado,
+                'saldo_subiu': saldo_subiu_selecionado,
+                'saldo_negativo': saldo_negativo_selecionado,
+
+                'dias_trabalhados_ano': dias_ano_selecionado,
+                'pacotes_ano': pacotes_ano_selecionado,
+                'media_ganho_dia': media_ano_selecionado,
+
+                'dias_percentual': dias_percentual_selecionado,
+                'pacotes_percentual': pacotes_percentual_selecionado,
+                'media_percentual': media_percentual_selecionado,
+
+                'dias_subiram': dias_subiram_selecionado,
+                'pacotes_subiram': pacotes_subiram_selecionado,
+                'media_subiu': media_subiu_selecionado,
+
+                'saldo_projetado_mensal': saldo_projetado_mensal_selecionado,
+                'saldo_projetado_anual': saldo_projetado_anual_selecionado,
+
+                'projecao_percentual': projecao_percentual_selecionado,
+                'projecao_subiu': projecao_subiu_selecionado
+            }
+
+        dados_atuais = dados_por_ano[ano_atual]
+
+        ganho_ano = dados_atuais['ganho_ano']
+        despesas_ano = dados_atuais['despesas_ano']
+        saldo_atual = dados_atuais['saldo_atual']
+
+        ganho_percentual = dados_atuais['ganho_percentual']
+        despesas_percentual = dados_atuais['despesas_percentual']
+        saldo_percentual = dados_atuais['saldo_percentual']
+
+        ganho_subiu = dados_atuais['ganho_subiu']
+        despesas_subiram = dados_atuais['despesas_subiram']
+        saldo_subiu = dados_atuais['saldo_subiu']
+        saldo_negativo = dados_atuais['saldo_negativo']
+
+        ganhos_mensais = ganhos_por_ano[ano_atual]
+
+        dias_trabalhados_ano = dados_atuais['dias_trabalhados_ano']
+        pacotes_ano = dados_atuais['pacotes_ano']
+        media_ganho_dia = dados_atuais['media_ganho_dia']
+
+        dias_percentual = dados_atuais['dias_percentual']
+        pacotes_percentual = dados_atuais['pacotes_percentual']
+        media_percentual = dados_atuais['media_percentual']
+
+        dias_subiram = dados_atuais['dias_subiram']
+        pacotes_subiram = dados_atuais['pacotes_subiram']
+        media_subiu = dados_atuais['media_subiu']
+
+        saldo_projetado_mensal = dados_atuais['saldo_projetado_mensal']
+        saldo_projetado_anual = dados_atuais['saldo_projetado_anual']
+
+        projecao_percentual = dados_atuais['projecao_percentual']
+        projecao_subiu = dados_atuais['projecao_subiu']
 
         return render_template(
             'dashboard.html',
@@ -454,6 +568,7 @@ def dashboard():
 
             anos_registrados=anos_registrados,
             ganhos_por_ano=ganhos_por_ano,
+            dados_por_ano=dados_por_ano,
 
             ganho_ano=ganho_ano,
             despesas_ano=despesas_ano,
