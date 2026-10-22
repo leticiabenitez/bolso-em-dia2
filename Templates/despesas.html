@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br" dir="ltr">
 <head>
@@ -97,7 +98,6 @@
             </section>
 
             <form action="{{ url_for('movimentacao') }}" method="GET">
-                <input type="hidden" name="origem" value="despesas">
                 <button class="btn-adicionar-despesa" type="submit">
                     <img src="{{ url_for('static', filename='uploads/mais-branco.png') }}" alt="">
                     <span>Adicionar despesa</span>
@@ -323,7 +323,7 @@
             <span>Rendimentos</span>
         </a>
 
-        <a href="{{ url_for('movimentacao', origem='despesas') }}" class="adicionar-mobile">
+        <a href="{{ url_for('movimentacao') }}" class="adicionar-mobile">
             <img src="{{ url_for('static', filename='uploads/mais-branco.png') }}" alt="">
         </a>
 
@@ -367,15 +367,30 @@
     <script src="{{ url_for('static', filename='js/modal_exclusao.js') }}"></script>
 
     <script>
+        // Seleciona o botão que abre a pesquisa na versão mobile
         var botaoPesquisaDespesa = document.querySelector("#botao-pesquisa-despesa")
+
+        // Seleciona a seção que contém a tabela de despesas
         var minhasDespesas = document.querySelector(".minhas-despesas")
+
+        // Seleciona o campo onde o usuário digita a descrição da despesa
         var buscarDespesa = document.querySelector("#buscar-despesa")
 
+        // Executa esta função quando o botão de pesquisa é clicado
         botaoPesquisaDespesa.addEventListener("click", function () {
+
+            // Verifica se a pesquisa já está aberta
             if (minhasDespesas.classList.contains("busca-aberta")) {
+
+                // Se estiver aberta, remove a classe e fecha a pesquisa
                 minhasDespesas.classList.remove("busca-aberta")
+
             } else {
+
+                // Se estiver fechada, adiciona a classe e abre a pesquisa
                 minhasDespesas.classList.add("busca-aberta")
+
+                // Coloca o cursor automaticamente no campo de pesquisa
                 buscarDespesa.focus()
             }
         })

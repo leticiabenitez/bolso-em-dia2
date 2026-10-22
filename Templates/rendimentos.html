@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br" dir="ltr">
 <head>
@@ -99,7 +98,7 @@
 
                 <div class="opcoes-rendimento">
                     <a href="{{ url_for('dia_trabalhado') }}">Dia Trabalhado</a>
-                    <a href="{{ url_for('movimentacao', origem='rendimentos') }}">Receita</a>
+                    <a href="{{ url_for('movimentacao') }}">Receita</a>
                     <a href="{{ url_for('servico_extra') }}">Serviço Extra</a>
                 </div>
             </details>
@@ -395,7 +394,7 @@
             <span>Rendimentos</span>
         </a>
 
-        <a href="{{ url_for('movimentacao', origem='rendimentos') }}" class="adicionar-mobile">
+        <a href="{{ url_for('movimentacao') }}" class="adicionar-mobile">
             <img src="{{ url_for('static', filename='uploads/mais-branco.png') }}" alt="">
         </a>
 

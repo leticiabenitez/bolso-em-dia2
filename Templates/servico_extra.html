@@ -141,8 +141,8 @@
 
                     <div class="campo-descricao">
                         <img class="icone-descricao" src="{{ url_for('static', filename='uploads/document-cinza.png') }}" alt="">
-                        <textarea name="descricao" maxlength="250" placeholder="Descreva os detalhes do serviço extra..."></textarea>
-                        <span class="contador-descricao">0/250</span>
+                        <textarea name="descricao" maxlength="500" placeholder="Descreva os detalhes do serviço extra..."></textarea>
+                        <span class="contador-descricao">0/500</span>
                     </div>
                 </div>
 
@@ -158,6 +158,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
 
     <script>
+        {# máscara para deixar o input do valor com 0,00 #}
         $("#valor").maskMoney({
             thousands: ".",
             decimal: ",",
@@ -174,6 +175,8 @@
         const descricao = document.querySelector('textarea')
         const contador = document.querySelector('.contador-descricao')
 
+
+        // Atualiza o contador conforme o usuário digita na descrição
         descricao.addEventListener('input', function() {
             contador.textContent = descricao.value.length + '/250'
         })

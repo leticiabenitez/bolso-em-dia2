@@ -108,8 +108,6 @@
             </div>
 
             <form action="{{ url_for('cadastrar_movimentacao') }}" method="POST">
-                <input type="hidden" name="origem" value="{{ origem }}">
-
                 <div class="linha-campos">
                     <div class="grupo-movimentacao valor-movimentacao">
                         <label>Valor recebido <span>*</span></label>
@@ -168,13 +166,13 @@
 
                     <div class="campo-descricao">
                         <img class="icone-descricao" src="{{ url_for('static', filename='uploads/document-cinza.png') }}" alt="">
-                        <textarea name="descricao" maxlength="250" placeholder="Descreva os detalhes da movimentação..."></textarea>
-                        <span class="contador-descricao">0/250</span>
+                        <textarea name="descricao" maxlength="500" placeholder="Descreva os detalhes da movimentação..."></textarea>
+                        <span class="contador-descricao">0/500</span>
                     </div>
                 </div>
 
                 <div class="botoes-movimentacao">
-                    <a href="{{ url_for(origem) }}" class="cancelar-movimentacao">Cancelar</a>
+                    <a href="{{ url_for('dashboard') }}" class="cancelar-movimentacao">Cancelar</a>
                     <button type="submit" class="registrar-movimentacao">Registrar</button>
                 </div>
             </form>
@@ -185,6 +183,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
 
     <script>
+        {# máscara para deixar o input do valor com 0,00 #}
         $("#valor").maskMoney({
             thousands: ".",
             decimal: ",",
@@ -198,18 +197,23 @@
             $("#valor").val(valor.toFixed(2))
         })
 
+
+        // Seleciona os campos de tipo, categoria, descrição e contador
         const tipo = document.getElementById('tipo')
         const categoria = document.getElementById('categoria')
         const descricao = document.querySelector('textarea')
         const contador = document.querySelector('.contador-descricao')
 
+        // Filtra as categorias conforme o tipo selecionado
         function filtrarCategorias() {
             const tipoSelecionado = tipo.value
-            categoria.value = ''
+            categoria.value = '' // Limpa a categoria selecionada
 
+            // Percorre todas as opções de categoria
             for (let opcao of categoria.options) {
                 const tipoCategoria = opcao.getAttribute('data-tipo')
 
+                // Mantém visíveis as opções gerais ou do tipo selecionado
                 if (!tipoCategoria) {
                     opcao.hidden = false
                 } else if (tipoCategoria == tipoSelecionado) {
@@ -220,15 +224,18 @@
             }
         }
 
+        // Redireciona para o cadastro de uma nova categoria quando selecionada
         categoria.addEventListener('change', function() {
             if (categoria.value == 'nova') {
                 window.location.href = "{{ url_for('nova_categoria') }}"
             }
         })
 
+        // Atualiza o contador conforme o usuário digita na descrição
         descricao.addEventListener('input', function() {
             contador.textContent = descricao.value.length + '/250'
         })
+
     </script>
 </body>
 </html>
