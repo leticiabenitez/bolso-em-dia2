@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br" dir="ltr">
 <head>
@@ -18,30 +19,37 @@
                 <img src="{{ url_for('static', filename='uploads/perfil-dashboard.png') }}" alt="">
                 <span>Dashboard</span>
             </a>
+
             <a href="{{ url_for('rendimentos') }}">
                 <img src="{{ url_for('static', filename='uploads/perfil-rendimentos.png') }}" alt="">
                 <span>Rendimentos</span>
             </a>
+
             <a href="{{ url_for('despesas') }}" class="pagina-ativa">
                 <img src="{{ url_for('static', filename='uploads/perfil-despesas.png') }}" alt="">
                 <span>Despesas</span>
             </a>
+
             <a href="{{ url_for('dia_trabalhado') }}">
                 <img src="{{ url_for('static', filename='uploads/perfil-dia-trabalhado.png') }}" alt="">
                 <span>Dia Trabalhado</span>
             </a>
+
             <a href="{{ url_for('servico_extra') }}">
                 <img src="{{ url_for('static', filename='uploads/perfil-servico-extra.png') }}" alt="">
                 <span>Serviço Extra</span>
             </a>
+
             <a href="{{ url_for('todas_categorias') }}">
                 <img src="{{ url_for('static', filename='uploads/tag-azul.png') }}" alt="">
                 <span>Categorias</span>
             </a>
+
             <a href="#">
                 <img src="{{ url_for('static', filename='uploads/perfil-relatorios.png') }}" alt="">
                 <span>Relatórios</span>
             </a>
+
             <a href="#">
                 <img src="{{ url_for('static', filename='uploads/perfil-historico.png') }}" alt="">
                 <span>Histórico Semanal</span>
@@ -59,12 +67,14 @@
     <main class="conteudo-sistema">
         <header class="topo-perfil">
             <div></div>
+
             <a href="{{ url_for('perfil') }}" class="usuario-logado">
                 {% if usuario[9] %}
                     <img src="{{ url_for('static', filename='Uploads/' + usuario[9]) }}" alt="Foto do usuário">
                 {% else %}
                     <img src="{{ url_for('static', filename='Uploads/perfil-usuario-topo.png') }}" alt="Foto padrão">
                 {% endif %}
+
                 <div>
                     <strong>{{ usuario[0].split()[:2] | join(' ') }}</strong>
                     <span>{{ usuario[1] }}</span>
@@ -100,6 +110,7 @@
                 <div class="icone-card-despesa vermelho">
                     <img src="{{ url_for('static', filename='uploads/cartao-vermelho.png') }}" alt="">
                 </div>
+
                 <div>
                     <p>Total de despesas</p>
                     <h2 class="valor-despesa">{{ "R$ %.2f"|format(total_despesas) }}</h2>
@@ -110,6 +121,7 @@
                 <div class="icone-card-despesa vermelho">
                     <img src="{{ url_for('static', filename='uploads/cartao-vermelho.png') }}" alt="">
                 </div>
+
                 <div>
                     <p>Despesas este mês</p>
                     <h2 class="valor-despesa">{{ "R$ %.2f"|format(despesas_mes) }}</h2>
@@ -120,6 +132,7 @@
                 <div class="icone-card-despesa verde">
                     <img src="{{ url_for('static', filename='uploads/list-verde.png') }}" alt="">
                 </div>
+
                 <div>
                     <p>Quantidade de despesas</p>
                     <h2 class="quantidade-despesa">{{ quantidade_despesas }}</h2>
@@ -139,6 +152,7 @@
                     <div class="icone-minhas-despesas">
                         <img src="{{ url_for('static', filename='uploads/calendar-verde.png') }}" alt="">
                     </div>
+
                     <h2>Minhas despesas <span>({{ quantidade_despesas }})</span></h2>
                 </div>
 
@@ -155,6 +169,7 @@
 
                 <div class="filtro-tabela">
                     <img src="{{ url_for('static', filename='uploads/calendar-azul.png') }}" alt="">
+
                     <select id="filtro-mes">
                         <option value="todos">Todos os meses</option>
                         <option value="1">Janeiro</option>
@@ -174,6 +189,7 @@
 
                 <div class="filtro-tabela">
                     <img src="{{ url_for('static', filename='uploads/tag-azul-2.png') }}" alt="">
+
                     <select id="filtro-categoria">
                         <option value="todos">Todas as categorias</option>
                     </select>
@@ -190,22 +206,28 @@
                                     <img src="{{ url_for('static', filename='uploads/duas-setas-cinza.png') }}" alt="">
                                 </button>
                             </th>
+
                             <th>Categoria</th>
+
                             <th>Descrição</th>
+
                             <th>
                                 <button type="button" class="botao-ordenacao" id="ordenar-valor">
                                     <span>Valor</span>
                                     <img src="{{ url_for('static', filename='uploads/duas-setas-cinza.png') }}" alt="">
                                 </button>
                             </th>
+
+                            <th>Status</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
 
                     <tbody id="tabela-despesa">
                         {% for despesa in despesas %}
-                            <tr class="item-despesa {% if despesa[5] == 0 %}despesa-inativa{% endif %}" data-data="{{ despesa[1] }}" data-categoria="{{ despesa[2] }}" data-descricao="{{ despesa[3] }}" data-valor="{{ despesa[4] }}">
-                                <td>{{ despesa[1] }}</td>
+                            <tr class="item-despesa" data-data="{{ despesa[1] }}" data-categoria="{{ despesa[2] }}" data-descricao="{{ despesa[3] }}" data-valor="{{ despesa[4] }}">
+                                <td>{{ despesa[1].strftime('%d/%m/%Y') }}</td>
+
                                 <td>
                                     {% if despesa[6] and despesa[7] %}
                                         <div class="categoria-tabela" style="background-color: #{{ despesa[6] }}20; color: #{{ despesa[6] }};">
@@ -218,35 +240,69 @@
                                         </div>
                                     {% endif %}
                                 </td>
+
                                 <td>{{ despesa[3] }}</td>
+
                                 <td class="valor-tabela">{{ "R$ %.2f"|format(despesa[4]) }}</td>
+
                                 <td>
                                     {% if despesa[5] == 1 %}
-                                        <div class="acoes-despesa">
+                                        <span class="status-despesa ativo">Ativo</span>
+                                    {% else %}
+                                        <span class="status-despesa inativo">Inativo</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="acoes-despesa">
+                                        {% if despesa[5] == 1 %}
                                             <a href="{{ url_for('editar_movimentacao', id=despesa[0]) }}" title="Editar">
                                                 <img src="{{ url_for('static', filename='uploads/edit.png') }}" alt="Editar">
                                             </a>
+
                                             <button type="button" class="abrir-modal-exclusao" data-url="{{ url_for('excluir_movimentacao', id=despesa[0]) }}" title="Excluir">
                                                 <img src="{{ url_for('static', filename='uploads/trash.png') }}" alt="Excluir">
                                             </button>
-                                        </div>
 
-                                        <details class="acoes-despesa-mobile">
-                                            <summary>›</summary>
-                                            <div class="menu-acoes-despesa-mobile">
+                                            <form action="{{ url_for('inativar_movimentacao', id=despesa[0]) }}" method="POST">
+                                                <input type="hidden" name="ativar" value="0">
+                                                <button type="submit" class="inativar-despesa">Inativar</button>
+                                            </form>
+                                        {% else %}
+                                            <form action="{{ url_for('inativar_movimentacao', id=despesa[0]) }}" method="POST">
+                                                <input type="hidden" name="ativar" value="1">
+                                                <button type="submit" class="ativar-despesa">Ativar</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+
+                                    <details class="acoes-despesa-mobile">
+                                        <summary>›</summary>
+
+                                        <div class="menu-acoes-despesa-mobile">
+                                            {% if despesa[5] == 1 %}
                                                 <a href="{{ url_for('editar_movimentacao', id=despesa[0]) }}">
                                                     <img src="{{ url_for('static', filename='uploads/edit.png') }}" alt="">
                                                     <span>Editar despesa</span>
                                                 </a>
+
                                                 <button type="button" class="abrir-modal-exclusao" data-url="{{ url_for('excluir_movimentacao', id=despesa[0]) }}">
                                                     <img src="{{ url_for('static', filename='uploads/trash.png') }}" alt="">
                                                     <span>Excluir despesa</span>
                                                 </button>
-                                            </div>
-                                        </details>
-                                    {% else %}
-                                        <span class="status-inativa">Inativa</span>
-                                    {% endif %}
+
+                                                <form action="{{ url_for('inativar_movimentacao', id=despesa[0]) }}" method="POST">
+                                                    <input type="hidden" name="ativar" value="0">
+                                                    <button type="submit" class="inativar-despesa">Inativar despesa</button>
+                                                </form>
+                                            {% else %}
+                                                <form action="{{ url_for('inativar_movimentacao', id=despesa[0]) }}" method="POST">
+                                                    <input type="hidden" name="ativar" value="1">
+                                                    <button type="submit" class="ativar-despesa">Ativar despesa</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </details>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -281,6 +337,7 @@
                 <img src="{{ url_for('static', filename='uploads/mais.png') }}" alt="">
                 <span>Mais</span>
             </summary>
+
             <div class="opcoes-mais-mobile">
                 <a href="{{ url_for('dia_trabalhado') }}">Dia Trabalhado</a>
                 <a href="{{ url_for('servico_extra') }}">Serviço Extra</a>
@@ -295,10 +352,12 @@
         <div class="modal-exclusao">
             <h2>Confirmar Exclusão</h2>
             <p>Tem certeza que deseja excluir registro?</p>
+
             <div class="botoes-modal-exclusao">
                 <form id="form-exclusao" method="POST">
                     <button type="submit" class="confirmar-exclusao">Confirmar</button>
                 </form>
+
                 <button type="button" class="cancelar-exclusao" id="cancelar-exclusao">Cancelar</button>
             </div>
         </div>
