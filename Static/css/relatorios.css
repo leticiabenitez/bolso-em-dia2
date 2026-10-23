@@ -1,0 +1,257 @@
+.titulo-relatorio {
+    padding: 18px 10px 20px;
+}
+
+.titulo-relatorio p {
+    font-size: 14px;
+}
+
+.titulo-relatorio h1 {
+    margin: 3px 0;
+    font-size: 32px;
+}
+
+.cabecalho-relatorios {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.baixar-relatorio {
+    height: 46px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--verde-escuro);
+    color: var(--branco);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--verde-escuro);
+}
+
+.meus-relatorios {
+    width: 100%;
+    padding: 16px;
+
+}
+.aviso-relatorio{
+    background-color: var(--verde-clarinho);
+    border: 2px solid var(--cinza-claro);
+    display: flex;
+    border-radius: 10px;
+    padding: 20px;
+}
+.aviso-relatorio img{
+    height: 70px;
+    width: 70px;
+
+}
+.aviso-relatorio .parte1{
+    display: grid;
+    margin-left: 20px;
+}
+.aviso-relatorio .parte1 span{
+    font-size: 38px;
+    font-weight: bold;
+}
+.aviso-relatorio .parte1 .valor1{
+    color: var(--verde-escuro);
+}
+.aviso-relatorio .parte2{
+    margin-left: auto;
+    display: flex;
+}
+.linha-vertical{
+    background-color: var(--cinza);
+    height: 90%;
+    width: 2px;
+    margin-right: 50px;
+    margin-left: 50px;
+}
+.aviso-relatorio .parte2 img{
+    margin-top: 20px;
+}
+.aviso-relatorio .parte2 .texto{
+    padding: 20px;
+}
+.aviso-relatorio .parte2 h6{
+    font-size: 15px;
+}
+.aviso-relatorio .parte2 p{
+    font-size: 15px;
+}
+
+.meus-relatorios h2 {
+    margin-bottom: 12px;
+    color: var(--azul-cinzento-escuro);
+    font-size: 20px;
+}
+
+
+
+/* TABLET */
+
+@media  (max-width: 1023px) {
+    .titulo-relatorio h1 {
+        font-size: 28px;
+    }
+
+    .aviso-relatorio {
+        flex-wrap: wrap;
+
+    }
+    .aviso-relatorio .parte2{
+        display: none;
+    }
+
+}
+
+/* MOBILE L */
+
+@media (max-width: 424px) {
+
+    .aviso-relatorio{
+       align-items: stretch;
+        flex-direction: column;
+    }
+
+    .titulo-rendimentos {
+        padding: 5px 2px 15px;
+    }
+
+    .titulo-rendimentos h1 {
+        font-size: 27px;
+    }
+
+    .adicionar-rendimento {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .btn-adicionar-rendimento {
+        width: 100%;
+    }
+
+    .opcoes-rendimento {
+        width: 100%;
+    }
+
+    .filtros-rendimentos {
+        flex-wrap: wrap;
+    }
+
+    .filtros-tabela {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .campo-busca,
+    .filtro-tabela {
+        width: 100%;
+    }
+
+    .filtro-tabela.ordenar {
+        margin-left: 0;
+    }
+
+    .meus-rendimentos {
+        padding: 12px;
+    }
+}
+
+/* MOBILE M */
+
+@media (min-width: 320px) and (max-width: 374px) {
+    .cabecalho-rendimentos {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .titulo-rendimentos {
+        padding: 5px 2px 15px;
+    }
+
+    .titulo-rendimentos h1 {
+        font-size: 24px;
+    }
+
+    .adicionar-rendimento {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .btn-adicionar-rendimento,
+    .opcoes-rendimento {
+        width: 100%;
+    }
+
+    .filtros-rendimentos {
+        flex-wrap: wrap;
+    }
+
+    .filtros-tabela {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .campo-busca,
+    .filtro-tabela {
+        width: 100%;
+    }
+
+    .filtro-tabela.ordenar {
+        margin-left: 0;
+    }
+}
+
+/* MOBILE S */
+
+@media (max-width: 319px) {
+    .cabecalho-rendimentos {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .titulo-rendimentos {
+        padding: 4px 1px 12px;
+    }
+
+    .titulo-rendimentos h1 {
+        font-size: 21px;
+    }
+
+    .adicionar-rendimento {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+
+    .btn-adicionar-rendimento,
+    .opcoes-rendimento {
+        width: 100%;
+    }
+
+    .filtros-rendimentos,
+    .filtros-tabela {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .filtro,
+    .campo-busca,
+    .filtro-tabela {
+        width: 100%;
+    }
+
+    .filtro-tabela.ordenar {
+        margin-left: 0;
+    }
+
+    .meus-rendimentos {
+        padding: 10px;
+    }
+}
