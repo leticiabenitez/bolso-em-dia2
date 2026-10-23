@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -359,119 +360,129 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-
-        // Seleciona o elemento canvas onde o gráfico será desenhado
         const ctx = document.getElementById('myChart')
-
-        // Seleciona o campo usado para escolher o ano
         const filtroAno = document.getElementById('filtro-ano')
-
-        // Recebe do Flask os ganhos de cada mês, separados por ano
-        // O filtro "tojson" transforma os dados Python em dados utilizáveis pelo JavaScript
         const ganhosPorAno = {{ ganhos_por_ano | tojson }}
-
-        // Recebe os demais indicadores financeiros de cada ano
         const dadosPorAno = {{ dados_por_ano | tojson }}
-
-        // Recebe o ano atual enviado pelo Flask
         const anoAtual = "{{ ano_atual }}"
 
-        // Guarda o caminho da imagem da seta verde
         const setaVerde = "{{ url_for('static', filename='uploads/seta-direita-cima-verde.png') }}"
-
-        // Guarda o caminho da imagem da seta vermelha
         const setaVermelha = "{{ url_for('static', filename='uploads/seta-direita-cima-vermelho.png') }}"
 
-        // Cria um novo gráfico usando o elemento canvas selecionado
         const grafico = new Chart(ctx, {
-
-            // Define o tipo de gráfico como barras
             type: 'bar',
-
-            // Configura os dados que serão apresentados
             data: {
-
-                // Define os nomes dos meses exibidos no gráfico
-                labels: [
-                    'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-                    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
-                ],
-
-                // Define a série de dados das barras
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
                 datasets: [{
-                    // Carrega os ganhos mensais do ano atual
                     data: ganhosPorAno[anoAtual],
-
-                    // Define a cor das barras
                     backgroundColor: '#14A83B',
-
-                    // Remove a espessura das bordas das barras
                     borderWidth: 0,
-
-                    // Define a espessura de cada barra
                     barThickness: 17
                 }]
             },
-
-            // Configura a aparência e o comportamento do gráfico
             options: {
-
-                // Exibe as barras na horizontal
                 indexAxis: 'y',
-
-                // Permite adaptar o gráfico ao tamanho do espaço disponível
                 responsive: true,
-
-                // Impede que o gráfico mantenha uma proporção fixa de largura e altura
                 maintainAspectRatio: false,
-
-                // Configura os elementos adicionais do gráfico
                 plugins: {
-
-                    // Oculta a legenda
                     legend: {
                         display: false
                     },
-
-                    // Personaliza a informação exibida ao passar o mouse sobre uma barra
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-
-                                // Mostra o valor da barra com duas casas decimais
                                 return 'R$ ' + context.raw.toFixed(2)
                             }
                         }
                     }
                 },
-
-                // Configura os eixos do gráfico
                 scales: {
-
-                    // Configura o eixo horizontal, que representa os valores
                     x: {
-                        // Faz o eixo começar no zero
                         beginAtZero: true,
-
-                        // Personaliza os números exibidos no eixo
                         ticks: {
                             callback: function(valor) {
-
-                                // Adiciona o símbolo de reais antes do valor
                                 return 'R$ ' + valor
                             }
                         }
                     },
-
-                    // Configura o eixo vertical, que apresenta os meses
                     y: {
                         grid: {
-                            // Oculta as linhas de grade desse eixo
                             display: false
                         }
                     }
                 }
             }
+        })
+
+        function formatarDinheiro(valor) {
+            return 'R$ ' + Number(valor).toFixed(2)
+        }
+
+        function atualizarComparacao(setaId, percentualId, subiu, percentual, despesa) {
+            const seta = document.getElementById(setaId)
+            const porcentagem = document.getElementById(percentualId)
+
+            porcentagem.textContent = percentual + '%'
+
+            if (despesa) {
+                if (subiu) {
+                    seta.src = setaVermelha
+                    seta.classList.remove('seta-baixo')
+                    porcentagem.className = 'porcentagem-vermelha'
+                } else {
+                    seta.src = setaVerde
+                    seta.classList.add('seta-baixo')
+                    porcentagem.className = 'porcentagem-verde'
+                }
+            } else {
+                if (subiu) {
+                    seta.src = setaVerde
+                    seta.classList.remove('seta-baixo')
+                    porcentagem.className = 'porcentagem-verde'
+                } else {
+                    seta.src = setaVermelha
+                    seta.classList.add('seta-baixo')
+                    porcentagem.className = 'porcentagem-vermelha'
+                }
+            }
+        }
+
+        filtroAno.addEventListener('change', function() {
+            const anoSelecionado = filtroAno.value
+            const dados = dadosPorAno[anoSelecionado]
+
+            grafico.data.datasets[0].data = ganhosPorAno[anoSelecionado]
+            grafico.update()
+
+            document.getElementById('ganho-ano').textContent = formatarDinheiro(dados.ganho_ano)
+            document.getElementById('despesas-ano').textContent = formatarDinheiro(dados.despesas_ano)
+
+            const saldo = document.getElementById('saldo-atual')
+            saldo.textContent = formatarDinheiro(dados.saldo_atual)
+
+            if (dados.saldo_negativo) {
+                saldo.className = 'valor-card valor-vermelho'
+            } else {
+                saldo.className = 'valor-card valor-verde'
+            }
+
+            document.getElementById('dias-trabalhados').textContent = dados.dias_trabalhados_ano
+            document.getElementById('pacotes-coletados').textContent = dados.pacotes_ano
+            document.getElementById('media-ganho').textContent = formatarDinheiro(dados.media_ganho_dia)
+
+            document.getElementById('saldo-projetado-mensal').textContent = formatarDinheiro(dados.saldo_projetado_mensal)
+            document.getElementById('saldo-projetado-anual').textContent = formatarDinheiro(dados.saldo_projetado_anual)
+
+            atualizarComparacao('ganho-seta', 'ganho-percentual', dados.ganho_subiu, dados.ganho_percentual, false)
+            atualizarComparacao('despesas-seta', 'despesas-percentual', dados.despesas_subiram, dados.despesas_percentual, true)
+            atualizarComparacao('saldo-seta', 'saldo-percentual', dados.saldo_subiu, dados.saldo_percentual, false)
+
+            atualizarComparacao('dias-seta', 'dias-percentual', dados.dias_subiram, dados.dias_percentual, false)
+            atualizarComparacao('pacotes-seta', 'pacotes-percentual', dados.pacotes_subiram, dados.pacotes_percentual, false)
+            atualizarComparacao('media-seta', 'media-percentual', dados.media_subiu, dados.media_percentual, false)
+
+            atualizarComparacao('projecao-mensal-seta', 'projecao-mensal-percentual', dados.projecao_subiu, dados.projecao_percentual, false)
+            atualizarComparacao('projecao-anual-seta', 'projecao-anual-percentual', dados.projecao_subiu, dados.projecao_percentual, false)
         })
     </script>
 </body>
