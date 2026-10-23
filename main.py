@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
 from datetime import datetime
 import fdb
+from fpdf import FPDF
+
 
 # importamos a biblioteca os, que permite trabalhar com arquivos  e pastas do computador.
 # Vamos utilizá-la para descobrir a extensão da imagem escolhida e definir em qual pasta ela será salva.
@@ -10,6 +12,7 @@ import os
 # assim, dois arquivos com o mesmo nome não vão se sobrescrever
 from uuid import uuid4
 
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder='Static', template_folder='Templates', static_url_path='/static')
@@ -17,7 +20,7 @@ app = Flask(__name__, static_folder='Static', template_folder='Templates', stati
 app.config['SECRET_KEY'] = 'chave_secreta_bolso_em_dia'
 
 host = "localhost"
-database = r"C:\Users\Aluno\Desktop\BOLSO-EM-DIA\BANCO.FDB"
+database = r"C:\Users\Aluno\Downloads\bolso-em-dia-main\BANCO.FDB"
 user = "sysdba"
 password = "sysdba"
 
@@ -1871,6 +1874,264 @@ def excluir_usuario():
     finally:
         cursor.close()
 
+
+
+@app.route('/relatorios')
+def relatorios():
+    if 'id_usuario' not in session:
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    usuario = buscar_dados(id_usuario)
+    ano_atual = datetime.now().year
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO), M.VALOR
+            FROM MOVIMENTACAO M
+            LEFT JOIN DIA_TRABALHADO D ON D.ID_DIA_TRABALHADO = M.ID_DIA_TRABALHADO
+            LEFT JOIN SERVICO_EXTRA S ON S.ID_SERVICO_EXTRA = M.ID_SERVICO_EXTRA
+            WHERE M.ID_USUARIO = ? AND M.TIPO = 2 AND M.STATUS = 1
+        """, (id_usuario,))
+
+        movimentacoes = cursor.fetchall()
+
+    finally:
+        cursor.close()
+
+    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+             'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+
+    ganhos_por_ano = {ano_atual: [0] * 12}
+
+    for movimentacao in movimentacoes:
+        data = movimentacao[0]
+        valor = float(movimentacao[1] or 0)
+        ano = data.year
+
+        if ano not in ganhos_por_ano:
+            ganhos_por_ano[ano] = [0] * 12
+
+        ganhos_por_ano[ano][data.month - 1] += valor
+
+    anos_registrados = sorted(ganhos_por_ano.keys(), reverse=True)
+    ganhos_mensais = ganhos_por_ano[ano_atual]
+    maior_valor = max(ganhos_mensais)
+
+    if maior_valor > 0:
+        melhor_mes = meses[ganhos_mensais.index(maior_valor)]
+    else:
+        melhor_mes = 'Nenhum'
+
+    return render_template('relatorios.html',
+                           usuario=usuario,
+                           ano_atual=ano_atual,
+                           anos_registrados=anos_registrados,
+                           meses=meses,
+                           ganhos_por_ano=ganhos_por_ano,
+                           ganhos_mensais=ganhos_mensais,
+                           melhor_mes=melhor_mes,
+                           maior_valor=maior_valor)
+
+
+@app.route('/relatorios/pdf', methods=['GET'])
+def baixar_relatorio():
+    if 'id_usuario' not in session:
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    ano_atual = datetime.now().year
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO), M.VALOR
+            FROM MOVIMENTACAO M
+            LEFT JOIN DIA_TRABALHADO D ON D.ID_DIA_TRABALHADO = M.ID_DIA_TRABALHADO
+            LEFT JOIN SERVICO_EXTRA S ON S.ID_SERVICO_EXTRA = M.ID_SERVICO_EXTRA
+            WHERE M.ID_USUARIO = ? AND M.TIPO = 2 AND M.STATUS = 1
+        """, (id_usuario,))
+
+        movimentacoes = cursor.fetchall()
+
+    finally:
+        cursor.close()
+
+    meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+             'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+
+    ganhos_mensais = [0] * 12
+
+    for movimentacao in movimentacoes:
+        data = movimentacao[0]
+        valor = float(movimentacao[1] or 0)
+
+        if data.year == ano_atual:
+            ganhos_mensais[data.month - 1] += valor
+
+    total = sum(ganhos_mensais)
+    maior_valor = max(ganhos_mensais)
+    melhor_mes = meses[ganhos_mensais.index(maior_valor)] if maior_valor > 0 else 'Nenhum'
+    meses_com_ganhos = sum(1 for valor in ganhos_mensais if valor > 0)
+
+    def dinheiro(valor):
+        return 'R$ ' + f'{valor:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    pdf.set_fill_color(8, 69, 45)
+    pdf.rect(0, 0, 210, 47, 'F')
+
+    pdf.set_fill_color(20, 168, 73)
+    pdf.rect(0, 47, 210, 3, 'F')
+
+    pdf.set_fill_color(255, 255, 255)
+    pdf.rect(14, 14, 49, 19, 'F')
+
+    logo = os.path.join(app.static_folder, 'uploads', 'logo-horizontal.png')
+
+    if os.path.isfile(logo):
+        pdf.image(logo, x=16, y=16, w=45)
+    else:
+        pdf.set_text_color(8, 69, 45)
+        pdf.set_font('Arial', 'B', 12)
+        pdf.set_xy(17, 19)
+        pdf.cell(43, 8, 'BOLSO EM DIA')
+
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font('Arial', 'B', 17)
+    pdf.set_xy(84, 15)
+    pdf.cell(112, 9, 'RELATÓRIO DE GANHOS', align='R')
+
+    pdf.set_font('Arial', '', 9)
+    pdf.set_xy(84, 27)
+    pdf.cell(112, 6, f'RESUMO FINANCEIRO  |  {ano_atual}', align='R')
+
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(8, 69, 45)
+    pdf.set_xy(14, 57)
+    pdf.cell(182, 7, 'VISÃO GERAL')
+
+    cartoes = [
+        (14, 'TOTAL DE GANHOS', dinheiro(total)),
+        (76, 'MESES COM GANHOS', f'{meses_com_ganhos} de 12'),
+        (138, 'MELHOR MÊS', melhor_mes)
+    ]
+
+    for i, (x, titulo, valor) in enumerate(cartoes):
+        if i == 0:
+            pdf.set_fill_color(228, 248, 234)
+        else:
+            pdf.set_fill_color(248, 250, 249)
+
+        pdf.set_draw_color(224, 233, 227)
+        pdf.rect(x, 68, 58, 32, 'DF')
+
+        pdf.set_xy(x + 4, 74)
+        pdf.set_font('Arial', 'B', 8)
+        pdf.set_text_color(93, 113, 102)
+        pdf.cell(50, 5, titulo)
+
+        pdf.set_xy(x + 4, 83)
+        pdf.set_font('Arial', 'B', 12)
+        pdf.set_text_color(8, 69, 45)
+        pdf.cell(50, 8, valor)
+
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(8, 69, 45)
+    pdf.set_xy(14, 109)
+    pdf.cell(120, 8, 'GANHOS POR MÊS')
+
+    pdf.set_font('Arial', '', 9)
+    pdf.set_text_color(105, 125, 112)
+    pdf.set_xy(155, 109)
+    pdf.cell(41, 8, str(ano_atual), align='R')
+
+    pdf.set_fill_color(8, 69, 45)
+    pdf.rect(14, 123, 182, 9, 'F')
+
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font('Arial', 'B', 9)
+
+    colunas = [
+        (18, 40, 'MÊS', 'L'),
+        (65, 47, 'GANHOS', 'R'),
+        (116, 29, '% DO ANO', 'R'),
+        (151, 39, 'DESEMPENHO', 'L')
+    ]
+
+    for x, largura, nome, alinhamento in colunas:
+        pdf.set_xy(x, 125)
+        pdf.cell(largura, 5, nome, align=alinhamento)
+
+    for i, (mes, valor) in enumerate(zip(meses, ganhos_mensais)):
+        y = 132 + i * 9
+
+        if i % 2 == 0:
+            pdf.set_fill_color(247, 250, 248)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+
+        pdf.rect(14, y, 182, 9, 'F')
+
+        pdf.set_font('Arial', '', 9)
+        pdf.set_text_color(40, 64, 50)
+        pdf.set_xy(18, y + 2)
+        pdf.cell(40, 5, mes)
+
+        pdf.set_font('Arial', 'B', 9)
+        pdf.set_xy(61, y + 2)
+        pdf.cell(51, 5, dinheiro(valor), align='R')
+
+        pdf.set_font('Arial', '', 9)
+        pdf.set_text_color(90, 112, 99)
+        pdf.set_xy(116, y + 2)
+
+        percentual = valor / total * 100 if total > 0 else 0
+        pdf.cell(29, 5, f'{percentual:.1f}%'.replace('.', ','), align='R')
+
+        pdf.set_fill_color(226, 236, 230)
+        pdf.rect(151, y + 3.2, 39, 2.5, 'F')
+
+        if maior_valor > 0 and valor > 0:
+            pdf.set_fill_color(20, 168, 73)
+            pdf.rect(151, y + 3.2, 39 * valor / maior_valor, 2.5, 'F')
+
+    pdf.set_fill_color(8, 69, 45)
+    pdf.rect(14, 243, 182, 13, 'F')
+
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_xy(18, 247)
+    pdf.cell(87, 6, 'TOTAL DO ANO')
+
+    pdf.set_xy(110, 247)
+    pdf.cell(80, 6, dinheiro(total), align='R')
+
+    pdf.set_font('Arial', '', 8)
+    pdf.set_text_color(107, 123, 114)
+    pdf.set_xy(14, 260)
+    pdf.cell(182, 5, 'Barras proporcionais ao mês com maior ganho no período.')
+
+    pdf.set_draw_color(213, 223, 216)
+    pdf.line(14, 273, 196, 273)
+
+    pdf.set_font('Arial', '', 8)
+    pdf.set_text_color(106, 117, 111)
+    pdf.set_xy(14, 277)
+    pdf.cell(120, 5, 'Gerado em ' + datetime.now().strftime('%d/%m/%Y às %H:%M'))
+
+    pdf.set_xy(154, 277)
+    pdf.cell(42, 5, 'Bolso em Dia  |  1/1', align='R')
+
+    pdf_path = f'relatorio_ganhos_{ano_atual}_{id_usuario}.pdf'
+    pdf.output(pdf_path)
+
+    return send_file(pdf_path, as_attachment=True, mimetype='application/pdf')
 
 if __name__ == "__main__":
     app.run(debug=True)
