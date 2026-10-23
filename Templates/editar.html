@@ -182,12 +182,12 @@
 
                         <div class="campo-perfil">
                             <img src="static/uploads/perfil-telefone-campo.png" alt="">
-                            <input type="text" name="telefone" value="{{ usuario[3] }}">
+                            <input type="text" name="telefone" id="telefone" value="{{ usuario[3] }}">
                         </div>
 
                         <div class="campo-perfil">
                             <img src="static/uploads/perfil-cpf-campo.png" alt="">
-                            <input type="text" name="cpf" value="{{ usuario[4] }}">
+                            <input type="text" name="cpf" id="cpf" value="{{ usuario[4] }}">
                         </div>
 
                         <div class="campo-perfil">
@@ -204,5 +204,20 @@
             </section>
         </main>
     </div>
+
+    <!-- Carrega a biblioteca jQuery, que facilita a manipulação dos elementos HTML usando JavaScript. -->
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/jquery.mask.min.js') }}" defer></script>
+
+    <!-- $ é uma forma abreviada de chamar o jQuery.-->
+    <!-- document representa o HTML da página.-->
+    <!-- ready() espera o HTML carregar antes de executar o código.-->
+    <!-- Seleciona os elementos com as classes e aplica as máscaras.-->
+    <script>
+        $(document).ready(function () {
+            $('#telefone').mask('(00)00000-0000');
+            $('#cpf').mask('000.000.000-00');
+        });
+    </script>
 </body>
 </html>
