@@ -166,12 +166,12 @@
 
                     <div class="campo-perfil somente-leitura">
                         <img src="static/uploads/perfil-telefone-campo.png" alt="">
-                        <p data-mask="(00)00000-0000">{{ usuario[3] }}</p>
+                        <p class="mascara-telefone">{{ usuario[3] }}</p>
                     </div>
 
                     <div class="campo-perfil somente-leitura">
                         <img src="static/uploads/perfil-cpf-campo.png" alt="">
-                        <p data-mask="000.000.000-00" >{{ usuario[4] }}</p>
+                        <p class="mascara-cpf" >{{ usuario[4] }}</p>
                     </div>
 
                     <div class="botoes-perfil">
@@ -199,5 +199,16 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/modal_exclusao.js') }}"></script>
+
+    <!-- $ é uma forma abreviada de chamar o jQuery.-->
+    <!-- document representa o HTML da página.-->
+    <!-- ready() espera o HTML carregar antes de executar o código.-->
+    <!-- Seleciona os elementos com as classes e aplica as máscaras.-->
+    <script>
+        $(document).ready(function () {
+            $('.mascara-telefone').mask('(00)00000-0000');
+            $('.mascara-cpf').mask('000.000.000-00');
+        });
+    </script>
 </body>
 </html>
