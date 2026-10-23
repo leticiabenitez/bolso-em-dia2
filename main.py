@@ -658,8 +658,8 @@ def editar_usuario():
 
             email = request.form['email']
             data_nasc = request.form['data_nasc']
-            telefone = request.form['telefone']
-            cpf = request.form['cpf']
+            telefone = request.form['telefone'].replace("(", "").replace(")", "").replace("-", "").replace(" ", "")
+            cpf = request.form['cpf'].replace(".", "").replace("-", "").replace(" ", "")
             senha_nova = request.form['senha']
             valor_diaria = float(request.form['valor_diaria'])
             adicional = float(request.form['adicional'])
