@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
-from datetime import datetime
+from datetime import datetime, timedelta
 import fdb
 from fpdf import FPDF
 
@@ -2132,6 +2132,135 @@ def baixar_relatorio():
     pdf.output(pdf_path)
 
     return send_file(pdf_path, as_attachment=True, mimetype='application/pdf')
+
+@app.route('/historico_semanal', methods=['GET', 'POST'])
+def historico_semanal():
+    if 'id_usuario' not in session:
+        flash('É necessário realizar o login', 'error')
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    usuario = buscar_dados(id_usuario)
+    ano = datetime.now().year
+
+    meses = [
+        {'numero': 1, 'nome': 'Janeiro'}, {'numero': 2, 'nome': 'Fevereiro'},
+        {'numero': 3, 'nome': 'Março'}, {'numero': 4, 'nome': 'Abril'},
+        {'numero': 5, 'nome': 'Maio'}, {'numero': 6, 'nome': 'Junho'},
+        {'numero': 7, 'nome': 'Julho'}, {'numero': 8, 'nome': 'Agosto'},
+        {'numero': 9, 'nome': 'Setembro'}, {'numero': 10, 'nome': 'Outubro'},
+        {'numero': 11, 'nome': 'Novembro'}, {'numero': 12, 'nome': 'Dezembro'}
+    ]
+
+    mes = int(request.form.get('mes', datetime.now().month))
+    semana = int(request.form.get('semana', 1))
+
+    if mes < 1 or mes > 12:
+        mes = datetime.now().month
+
+    if mes == 12:
+        proximo_mes = datetime(ano + 1, 1, 1)
+    else:
+        proximo_mes = datetime(ano, mes + 1, 1)
+
+    ultimo_dia = (proximo_mes - timedelta(days=1)).day
+
+    semanas = [
+        {'numero': 1, 'nome': 'Dias 1 a 7'},
+        {'numero': 2, 'nome': 'Dias 8 a 14'},
+        {'numero': 3, 'nome': 'Dias 15 a 21'},
+        {'numero': 4, 'nome': 'Dias 22 a 28'}
+    ]
+
+    if ultimo_dia >= 29:
+        semanas.append({'numero': 5, 'nome': f'Dias 29 a {ultimo_dia}'})
+
+    if semana < 1 or semana > len(semanas):
+        semana = 1
+
+    dia_inicio = (semana - 1) * 7 + 1
+    dia_fim = min(semana * 7, ultimo_dia)
+
+    if semana == 5:
+        dia_inicio = 29
+        dia_fim = ultimo_dia
+
+    data_inicio = datetime(ano, mes, dia_inicio)
+    data_fim = datetime(ano, mes, dia_fim) + timedelta(days=1)
+
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT
+                COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO),
+                C.NOME_CATEGORIA,
+                M.DESCRICAO,
+                M.VALOR,
+                M.TIPO
+            FROM MOVIMENTACAO M
+            LEFT JOIN CATEGORIA C ON C.ID_CATEGORIA = M.ID_CATEGORIA
+            LEFT JOIN DIA_TRABALHADO D ON D.ID_DIA_TRABALHADO = M.ID_DIA_TRABALHADO
+            LEFT JOIN SERVICO_EXTRA S ON S.ID_SERVICO_EXTRA = M.ID_SERVICO_EXTRA
+            WHERE M.ID_USUARIO = ?
+              AND M.STATUS = 1
+              AND COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO) >= ?
+              AND COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO) < ?
+            ORDER BY COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO) DESC
+        """, (id_usuario, data_inicio, data_fim))
+
+        registros = cursor.fetchall()
+        registros_semana = []
+        total_ganhos = 0
+        total_despesas = 0
+        quantidade_ganhos = 0
+        quantidade_despesas = 0
+
+        for registro in registros:
+            data, categoria, descricao, valor, tipo = registro
+            valor = float(valor or 0)
+
+            if tipo == 2:
+                total_ganhos += valor
+                quantidade_ganhos += 1
+            elif tipo == 1:
+                total_despesas += valor
+                quantidade_despesas += 1
+
+            registros_semana.append({
+                'data': data.strftime('%d/%m/%Y'),
+                'categoria': categoria or 'Sem categoria',
+                'descricao': descricao or '',
+                'valor': valor,
+                'tipo': tipo
+            })
+
+        saldo_semana = total_ganhos - total_despesas
+
+        return render_template(
+            'historico_semanal.html',
+            usuario=usuario,
+            meses=meses,
+            semanas=semanas,
+            mes_selecionado=mes,
+            semana_selecionada=semana,
+            registros_semana=registros_semana,
+            total_ganhos=total_ganhos,
+            total_despesas=total_despesas,
+            saldo_semana=saldo_semana,
+            quantidade_ganhos=quantidade_ganhos,
+            quantidade_despesas=quantidade_despesas,
+            dia_inicio=dia_inicio,
+            dia_fim=dia_fim,
+            ano=ano
+        )
+
+    except Exception as e:
+        flash(f'Erro ao carregar histórico: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+    finally:
+        cursor.close()
 
 if __name__ == "__main__":
     app.run(debug=True)
