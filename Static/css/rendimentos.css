@@ -748,7 +748,6 @@
         padding: 6px;
         position: absolute;
         top: -5px;
-        right: 14px;
         z-index: 30;
         background-color: var(--branco);
         border: 1px solid var(--cinza-claro);
