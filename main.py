@@ -2133,6 +2133,162 @@ def baixar_relatorio():
 
     return send_file(pdf_path, as_attachment=True, mimetype='application/pdf')
 
+
+@app.route('/relatorios/previsoes/pdf', methods=['GET'])
+def baixar_previsoes():
+    if 'id_usuario' not in session:
+        return redirect(url_for('pagina_login'))
+
+    id_usuario = session['id_usuario']
+    ano = request.args.get('ano', default=datetime.now().year, type=int)
+    cursor = con.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT COALESCE(D.DATA_TRABALHO, S.DATA_SERVICO, M.DATA_MOVIMENTACAO), M.VALOR, M.TIPO
+            FROM MOVIMENTACAO M
+            LEFT JOIN DIA_TRABALHADO D ON D.ID_DIA_TRABALHADO = M.ID_DIA_TRABALHADO
+            LEFT JOIN SERVICO_EXTRA S ON S.ID_SERVICO_EXTRA = M.ID_SERVICO_EXTRA
+            WHERE M.ID_USUARIO = ? AND M.STATUS = 1
+        """, (id_usuario,))
+        movimentacoes = cursor.fetchall()
+    finally:
+        cursor.close()
+
+    ganhos = 0
+    despesas = 0
+
+    for movimentacao in movimentacoes:
+        if movimentacao[0].year == ano:
+            valor = float(movimentacao[1] or 0)
+            if movimentacao[2] == 2:
+                ganhos += valor
+            elif movimentacao[2] == 1:
+                despesas += valor
+
+    saldo = ganhos - despesas
+
+    if ano == datetime.now().year:
+        meses_projecao = datetime.now().month
+    else:
+        meses_projecao = 12
+
+    saldo_projetado_mensal = saldo / meses_projecao
+    saldo_projetado_anual = saldo_projetado_mensal * 12
+
+    def dinheiro(valor):
+        return 'R$ ' + f'{valor:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_fill_color(8, 69, 45)
+    pdf.rect(0, 0, 210, 47, 'F')
+    pdf.set_fill_color(20, 168, 73)
+    pdf.rect(0, 47, 210, 3, 'F')
+
+    pdf.set_fill_color(255, 255, 255)
+    pdf.rect(14, 14, 49, 19, 'F')
+    logo = os.path.join(app.static_folder, 'uploads', 'logo-horizontal.png')
+    if os.path.isfile(logo):
+        pdf.image(logo, x=16, y=16, w=45)
+    else:
+        pdf.set_font('Arial', 'B', 12)
+        pdf.set_text_color(8, 69, 45)
+        pdf.set_xy(17, 19)
+        pdf.cell(43, 8, 'BOLSO EM DIA')
+
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font('Arial', 'B', 16)
+    pdf.set_xy(72, 15)
+    pdf.cell(124, 9, 'PREVISÕES FINANCEIRAS', align='R')
+    pdf.set_font('Arial', '', 9)
+    pdf.set_xy(84, 27)
+    pdf.cell(112, 6, f'ANO DE REFERÊNCIA  |  {ano}', align='R')
+
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(8, 69, 45)
+    pdf.set_xy(14, 60)
+    pdf.cell(182, 7, 'SALDOS PROJETADOS')
+
+    projecoes = [
+        (14, 'SALDO PROJETADO MENSAL', dinheiro(saldo_projetado_mensal)),
+        (107, 'SALDO PROJETADO ANUAL', dinheiro(saldo_projetado_anual))
+    ]
+
+    for x, titulo, valor in projecoes:
+        pdf.set_fill_color(228, 248, 234)
+        pdf.set_draw_color(224, 233, 227)
+        pdf.rect(x, 72, 89, 38, 'DF')
+        pdf.set_text_color(93, 113, 102)
+        pdf.set_font('Arial', 'B', 9)
+        pdf.set_xy(x + 5, 80)
+        pdf.cell(79, 6, titulo)
+        pdf.set_font('Arial', 'B', 17)
+        pdf.set_text_color(8, 69, 45)
+        pdf.set_xy(x + 5, 92)
+        pdf.cell(79, 9, valor)
+
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(8, 69, 45)
+    pdf.set_xy(14, 123)
+    pdf.cell(182, 7, 'DADOS UTILIZADOS NO CÁLCULO')
+
+    dados = [
+        ('Receitas registradas', dinheiro(ganhos)),
+        ('Despesas registradas', dinheiro(despesas)),
+        ('Saldo acumulado', dinheiro(saldo)),
+        ('Meses considerados', f'{meses_projecao} de 12')
+    ]
+
+    for i, (titulo, valor) in enumerate(dados):
+        y = 136 + i * 11
+        if i % 2 == 0:
+            pdf.set_fill_color(247, 250, 248)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+        pdf.rect(14, y, 182, 11, 'F')
+        pdf.set_font('Arial', '', 10)
+        pdf.set_text_color(54, 75, 62)
+        pdf.set_xy(19, y + 2.5)
+        pdf.cell(100, 6, titulo)
+        pdf.set_font('Arial', 'B', 10)
+        pdf.set_xy(123, y + 2.5)
+        pdf.cell(68, 6, valor, align='R')
+
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(8, 69, 45)
+    pdf.set_xy(14, 194)
+    pdf.cell(182, 7, 'COMO AS PREVISÕES SÃO CALCULADAS')
+
+    pdf.set_fill_color(247, 250, 248)
+    pdf.set_draw_color(224, 233, 227)
+    pdf.rect(14, 205, 182, 35, 'DF')
+    pdf.set_font('Arial', '', 10)
+    pdf.set_text_color(54, 75, 62)
+    pdf.set_xy(19, 211)
+    pdf.cell(171, 6, 'Saldo mensal = (receitas - despesas) / meses considerados')
+    pdf.set_xy(19, 221)
+    pdf.cell(171, 6, 'Saldo anual = saldo mensal x 12')
+
+    pdf.set_font('Arial', '', 9)
+    pdf.set_text_color(106, 117, 111)
+    pdf.set_xy(14, 250)
+    pdf.multi_cell(182, 5, 'As projeções são estimativas baseadas nas movimentações registradas. Não representam valores garantidos.')
+
+    pdf.set_draw_color(213, 223, 216)
+    pdf.line(14, 273, 196, 273)
+    pdf.set_font('Arial', '', 8)
+    pdf.set_text_color(106, 117, 111)
+    pdf.set_xy(14, 277)
+    pdf.cell(120, 5, 'Gerado em ' + datetime.now().strftime('%d/%m/%Y às %H:%M'))
+    pdf.set_xy(151, 277)
+    pdf.cell(45, 5, 'Bolso em Dia  |  1/1', align='R')
+
+    pdf_path = f'previsoes_financeiras_{ano}_{id_usuario}.pdf'
+    pdf.output(pdf_path)
+    return send_file(pdf_path, as_attachment=True, mimetype='application/pdf')
+
 @app.route('/historico_semanal', methods=['GET', 'POST'])
 def historico_semanal():
     if 'id_usuario' not in session:
