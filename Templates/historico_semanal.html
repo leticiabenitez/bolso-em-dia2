@@ -245,6 +245,42 @@
         </section>
     </main>
 
+    <nav class="menu-mobile-dashboard">
+        <a href="{{ url_for('dashboard') }}" class="item-menu-mobile ativo">
+            <img src="{{ url_for('static', filename='uploads/perfil-dashboard.png') }}" alt="">
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('rendimentos') }}" class="item-menu-mobile">
+            <img src="{{ url_for('static', filename='uploads/perfil-rendimentos.png') }}" alt="">
+            <span>Rendimentos</span>
+        </a>
+
+        <a href="{{ url_for('movimentacao') }}" class="adicionar-mobile">
+            <img src="{{ url_for('static', filename='uploads/mais-branco.png') }}" alt="">
+        </a>
+
+        <a href="{{ url_for('despesas') }}" class="item-menu-mobile">
+            <img src="{{ url_for('static', filename='uploads/perfil-despesas.png') }}" alt="">
+            <span>Despesas</span>
+        </a>
+
+        <details class="mais-mobile">
+            <summary class="item-menu-mobile">
+                <img src="{{ url_for('static', filename='uploads/mais.png') }}" alt="">
+                <span>Mais</span>
+            </summary>
+
+            <div class="opcoes-mais-mobile">
+                <a href="{{ url_for('dia_trabalhado') }}">Dia Trabalhado</a>
+                <a href="{{ url_for('servico_extra') }}">Serviço Extra</a>
+                <a href="{{ url_for('todas_categorias') }}">Categorias</a>
+                <a href="{{ url_for('relatorios') }}">Relatórios</a>
+                <a href="{{ url_for('historico_semanal') }}">Histórico Semanal</a>
+            </div>
+        </details>
+    </nav>
+
     <script>
         document.getElementById('filtro-mes').addEventListener('change', function() {
             document.getElementById('form-filtros').submit();

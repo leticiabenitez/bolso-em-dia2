@@ -96,7 +96,7 @@
             <form action="{{ url_for('baixar_relatorio') }}" method="GET">
                 <input type="hidden" name="ano" id="ano-pdf" value="{{ ano_atual }}">
                 <button class="baixar-relatorio" type="submit">Baixar Relatório</button>
-                <button class="baixar-relatorio" type="submit" formaction="{{ url_for('baixar_previsoes') }}">Baixar Previsões</button>
+                <button class="baixar-relatorio" type="submit" formaction="{{ url_for('baixar_relatorio') }}">Baixar Previsões</button>
             </form>
 
         </div>

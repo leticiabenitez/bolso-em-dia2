@@ -94,7 +94,7 @@
             <h1>Dashboard</h1>
             <p>Acompanhe seus ganhos, despesas e progresso financeiro.</p>
 
-            <form action="{{ url_for('baixar_previsoes') }}" method="GET" class="form-previsoes">
+            <form action="{{ url_for('baixar_relatorio') }}" method="GET" class="form-previsoes">
                 <input type="hidden" name="ano" id="ano-pdf-dashboard" value="{{ ano_atual }}">
                 <button type="submit" class="btn-baixar-previsoes">Baixar Previsões</button>
             </form>
@@ -357,8 +357,8 @@
                 <a href="{{ url_for('dia_trabalhado') }}">Dia Trabalhado</a>
                 <a href="{{ url_for('servico_extra') }}">Serviço Extra</a>
                 <a href="{{ url_for('todas_categorias') }}">Categorias</a>
-                <a href="#">Relatórios</a>
-                <a href="#">Histórico Semanal</a>
+                <a href="{{ url_for('relatorios') }}">Relatórios</a>
+                <a href="{{ url_for('historico_semanal') }}">Histórico Semanal</a>
             </div>
         </details>
     </nav>
