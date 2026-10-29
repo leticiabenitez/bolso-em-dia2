@@ -1073,7 +1073,7 @@ body {
 .form-previsoes {
     position: absolute;
     right: 4px;
-    top: 27px;
+    top: 20px;
     display: flex;
     justify-content: flex-end;
 }
